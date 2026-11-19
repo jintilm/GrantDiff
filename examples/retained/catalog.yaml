@@ -1,0 +1,21 @@
+schemaVersion: "1.0"
+resources:
+  - apiGroup: ""
+    name: configmaps
+    namespaced: true
+  - apiGroup: ""
+    name: secrets
+    namespaced: true
+  - apiGroup: ""
+    name: pods
+    namespaced: true
+    subresources: [log, exec]
+  - apiGroup: ""
+    name: nodes
+    namespaced: false
+  - apiGroup: rbac.authorization.k8s.io
+    name: roles
+    namespaced: true
+  - apiGroup: rbac.authorization.k8s.io
+    name: clusterroles
+    namespaced: false

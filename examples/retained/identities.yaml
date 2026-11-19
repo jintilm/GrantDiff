@@ -1,0 +1,6 @@
+schemaVersion: "1.0"
+identities:
+  - id: report-bot
+    kind: ServiceAccount
+    name: report-bot
+    namespace: finance

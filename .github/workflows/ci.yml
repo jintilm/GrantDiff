@@ -1,0 +1,41 @@
+name: Verify
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  unit:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff
+        with:
+          go-version: 1.26.4
+      - run: go test ./...
+      - run: go vet ./...
+      - run: go build ./cmd/grantdiff
+  kubernetes:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        image:
+          - kindest/node:v1.35.8@sha256:07b2536e30b803ed61d1677a79df6115f798ce64c80f9e22f6ed45afd09323c0
+          - kindest/node:v1.36.4@sha256:099e049362a1526b2db71494e1947aae99bd16290d7c895f2b7ea312e3cbfaed
+          - kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff
+        with:
+          go-version: 1.26.4
+      - run: go install sigs.k8s.io/kind@v0.33.0
+      - run: go run ./scripts/integration --image "$NODE_IMAGE" --result .work/verification.json
+        env:
+          NODE_IMAGE: ${{ matrix.image }}

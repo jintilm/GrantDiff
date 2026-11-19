@@ -1,0 +1,8 @@
+/bin/
+/.tools/
+/.work/
+/dist/
+/coverage.out
+/grantdiff
+/grantdiff.exe
+*.test

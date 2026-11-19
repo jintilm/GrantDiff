@@ -1,0 +1,105 @@
+{
+  "release": "0.4.1-preview",
+  "verificationDate": "2026-11-19",
+  "kubernetes": [
+    {
+      "actualRequests": 2,
+      "authorizationComparisons": 1262,
+      "completedAt": "2026-11-19T13:13:39.4687782Z",
+      "kubernetesVersion": "v1.35.8",
+      "result": "passed",
+      "seed": "20261119/7"
+    },
+    {
+      "actualRequests": 2,
+      "authorizationComparisons": 1262,
+      "completedAt": "2026-11-19T13:14:33.9976082Z",
+      "kubernetesVersion": "v1.36.4",
+      "result": "passed",
+      "seed": "20261119/7"
+    },
+    {
+      "actualRequests": 2,
+      "authorizationComparisons": 1262,
+      "completedAt": "2026-11-19T13:15:27.1370783Z",
+      "kubernetesVersion": "v1.37.0",
+      "result": "passed",
+      "seed": "20261119/7"
+    }
+  ],
+  "packages": {
+    "project": "GrantDiff",
+    "release": "0.4.1-preview",
+    "windowsAndUbuntuJSON": "identical",
+    "reportSchema": "passed",
+    "standaloneWindowsArchive": "passed",
+    "standaloneLinuxArchive": "passed",
+    "checksums": "passed",
+    "commandName": "grantdiff"
+  },
+  "inMemoryBenchmark": {
+    "arch": "amd64",
+    "calculation": "complete",
+    "changedObjects": 1,
+    "changes": 2,
+    "comparedClasses": 33,
+    "elapsedMilliseconds": 58,
+    "goVersion": "go1.26.4",
+    "heapInUseBytesAtEnd": 19636224,
+    "identities": 1000,
+    "measurement": "in-memory review; heap sample at end, process peak RSS not measured",
+    "objectsPerState": 10000,
+    "os": "windows",
+    "totalAllocatedBytes": 48173024
+  },
+  "unitTestPlatforms": [
+    "windows/amd64",
+    "linux/amd64"
+  ],
+  "goVet": "passed",
+  "githubHostedCI": "configured; not executed in this local development session",
+  "filePipelineBenchmark": {
+    "arch": "amd64",
+    "calculation": "complete",
+    "changedObjects": 1,
+    "changes": 2,
+    "comparedClasses": 33,
+    "elapsedMilliseconds": 1507,
+    "goVersion": "go1.26.4",
+    "heapInUseBytesAtEnd": 29523968,
+    "identities": 1000,
+    "measurement": "memory mode times analysis; files mode includes input loading and report writing; heap sample at end, process peak RSS not measured",
+    "mode": "files",
+    "objectsPerState": 10000,
+    "os": "windows",
+    "totalAllocatedBytes": 1908818392,
+    "sampledPeakWorkingSetBytes": 179007488,
+    "memorySamplingIntervalMilliseconds": 10,
+    "peakMeasurementScope": "whole benchmark process, including fixture generation; compilation excluded"
+  },
+  "readinessRegressions": [
+    "indeterminate CI exit status",
+    "wildcard API-group catalog scope",
+    "invalid query shapes",
+    "List versus multi-document policy equivalence"
+  ],
+  "inMemoryBenchmarkRelease": "0.4.0-preview",
+  "packagesVerificationRelease": "0.4.1-preview",
+  "project": "GrantDiff",
+  "module": "github.com/jintilm/GrantDiff",
+  "renameVerification": {
+    "unitTestPlatforms": [
+      "windows/amd64",
+      "linux/amd64"
+    ],
+    "goVet": "passed",
+    "kubernetes": {
+      "actualRequests": 2,
+      "authorizationComparisons": 1262,
+      "completedAt": "2026-11-19T13:46:27.3783881Z",
+      "kubernetesVersion": "v1.37.0",
+      "result": "passed",
+      "seed": "20261119/7"
+    }
+  }
+}

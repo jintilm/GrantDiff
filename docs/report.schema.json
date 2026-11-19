@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GrantDiff diff report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "authorizationModel", "scope", "changes", "diagnostics", "comparedClasses", "identities"],
+  "properties": {
+    "schemaVersion": {"const": "1.0"},
+    "authorizationModel": {"const": "kubernetes-rbac"},
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "beforeSource", "afterSource", "beforeDigest", "afterDigest", "policyCompleteness", "identityCompleteness", "calculation"],
+      "properties": {
+        "source": {"type": "string"},
+        "beforeSource": {"type": "string"},
+        "afterSource": {"type": "string"},
+        "beforeDigest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "afterDigest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "policyCompleteness": {"enum": ["declared_complete", "incomplete"]},
+        "identityCompleteness": {"enum": ["complete", "incomplete"]},
+        "calculation": {"enum": ["complete", "incomplete"]}
+      }
+    },
+    "changes": {"type": "array", "items": {"$ref": "#/$defs/change"}},
+    "diagnostics": {"type": "array", "items": {"$ref": "#/$defs/diagnostic"}},
+    "comparedClasses": {"type": "integer", "minimum": 0},
+    "identities": {"type": "integer", "minimum": 0}
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "required": ["file", "document"],
+      "properties": {
+        "file": {"type": "string"},
+        "document": {"type": "integer", "minimum": 0},
+        "line": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "diagnostic": {
+      "type": "object",
+      "required": ["code", "message"],
+      "properties": {
+        "code": {"type": "string"},
+        "message": {"type": "string"},
+        "object": {"type": "string"},
+        "source": {"$ref": "#/$defs/source"}
+      },
+      "additionalProperties": false
+    },
+    "selector": {
+      "type": "object",
+      "properties": {
+        "value": {"type": "string"},
+        "except": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "prefix": {"type": "string"},
+        "exceptPrefixes": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      },
+      "additionalProperties": false,
+      "not": {"required": ["value", "prefix"]}
+    },
+    "request": {
+      "type": "object",
+      "required": ["verb", "apiGroup"],
+      "properties": {
+        "verb": {"type": "string"},
+        "apiGroup": {"type": "string"},
+        "resource": {"type": "string"},
+        "subresource": {"type": "string"},
+        "namespace": {"type": "string"},
+        "name": {"type": "string"},
+        "url": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["subject", "binding", "role", "ruleId", "bindingSource", "ruleSource"],
+      "properties": {
+        "subject": {"type": "string"},
+        "binding": {"type": "string"},
+        "role": {"type": "string"},
+        "ruleId": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "aggregationPath": {"type": "array", "items": {"type": "string"}},
+        "bindingSource": {"$ref": "#/$defs/source"},
+        "ruleSource": {"$ref": "#/$defs/source"}
+      },
+      "additionalProperties": false
+    },
+    "change": {
+      "type": "object",
+      "required": ["id", "targetType", "type", "subject", "representativeRequest", "range", "before", "after", "beforeEvidence", "afterEvidence", "risk"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-f0-9]{20}$"},
+        "targetType": {"enum": ["identity_access", "group_grant"]},
+        "type": {"enum": ["added", "removed", "retained_via_other_path", "path_changed", "indeterminate"]},
+        "subject": {"type": "string"},
+        "representativeRequest": {"$ref": "#/$defs/request"},
+        "range": {"type": "object", "additionalProperties": {"$ref": "#/$defs/selector"}},
+        "before": {"enum": ["granted", "not_granted", "unknown"]},
+        "after": {"enum": ["granted", "not_granted", "unknown"]},
+        "beforeEvidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}},
+        "afterEvidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}},
+        "risk": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "severity", "message"],
+            "properties": {
+              "id": {"type": "string"},
+              "severity": {"enum": ["high"]},
+              "message": {"type": "string"}
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

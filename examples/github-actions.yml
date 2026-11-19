@@ -1,0 +1,35 @@
+name: Review RBAC changes
+on:
+  pull_request:
+    paths:
+      - 'deploy/rbac/**'
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      # Install a verified grantdiff release on PATH in your runner image.
+      # Keep identities.yaml and catalog.yaml in a trusted CI configuration path.
+      - name: Review both complete Git trees
+        run: grantdiff diff --repo . --base "$BASE_SHA" --head "$HEAD_SHA" --path deploy/rbac --identities "$IDENTITIES" --catalog "$CATALOG" --format markdown --output review.md --fail-on high
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          IDENTITIES: /opt/grantdiff/identities.yaml
+          CATALOG: /opt/grantdiff/catalog.yaml
+      - name: Show report
+        if: always()
+        run: |
+          if [ -f review.md ]; then
+            cat review.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: grantdiff
+          path: review.md

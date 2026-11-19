@@ -1,0 +1,13 @@
+GrantDiff
+
+This project uses Kubernetes API definitions, apimachinery and client-go,
+which are licensed under the Apache License 2.0.
+
+YAML parsing uses go.yaml.in/yaml/v3 and sigs.k8s.io/yaml. Dependency versions
+and their transitive modules are recorded in go.mod and go.sum. Each dependency
+retains its own copyright and license. Release packages include dependency
+license texts generated from the exact module graph.
+
+Authorization behavior is implemented against the Kubernetes RBAC semantics
+and verified against the Kubernetes API server. Upstream references are listed
+in docs/design.zh-CN.md.

@@ -1,0 +1,24 @@
+name: Incorrect result or failure
+description: Report a reproducible RBAC review issue
+body:
+  - type: textarea
+    id: environment
+    attributes:
+      label: Program version and environment
+      description: Include OS, architecture and Kubernetes version when relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: input
+    attributes:
+      label: Reproduction
+      description: Include synthetic manifests, identity groups, command and expected result.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      description: Include the exit code and relevant JSON report fields.
+    validations:
+      required: true
