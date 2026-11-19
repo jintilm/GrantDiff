@@ -20,7 +20,7 @@ import (
 	"github.com/jintilm/GrantDiff/internal/report"
 )
 
-var Version = "0.4.2-preview"
+var Version = "0.5.0-preview"
 
 type options struct {
 	before, after, repo, base, head, path, baseline, changes               string
@@ -28,19 +28,20 @@ type options struct {
 	context, kubeconfig, failOn                                            string
 	allowBefore, allowAfter                                                bool
 	maxClasses                                                             int
+	summaryOnly                                                            bool
 	request                                                                model.Request
 }
 
 func Run(args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 || slices.Contains([]string{"help", "--help", "-h"}, args[0]) {
-		fmt.Fprintln(stdout, "grantdiff diff | query | snapshot | version\n\nReview Kubernetes RBAC changes with explicit authorization evidence.\nUse COMMAND --help for flags.")
+		fmt.Fprintln(stdout, "grantdiff diff | query | catalog | snapshot | version\n\nReview Kubernetes RBAC changes with explicit authorization evidence.\nUse COMMAND --help for flags.")
 		return 0
 	}
 	if args[0] == "version" || args[0] == "--version" {
 		fmt.Fprintln(stdout, Version)
 		return 0
 	}
-	if !slices.Contains([]string{"diff", "query", "snapshot"}, args[0]) {
+	if !slices.Contains([]string{"diff", "query", "catalog", "snapshot"}, args[0]) {
 		fmt.Fprintln(stderr, "unknown command:", args[0])
 		return 2
 	}
@@ -58,6 +59,9 @@ func Run(args []string, stdout, stderr io.Writer) int {
 	if args[0] == "query" {
 		return query(opts, stdout, stderr)
 	}
+	if args[0] == "catalog" {
+		return catalog(opts, stdout, stderr)
+	}
 	return compare(opts, stdout, stderr)
 }
 
@@ -69,6 +73,9 @@ func parse(command string, args []string, stderr io.Writer) (options, error) {
 	if command == "snapshot" {
 		flags.StringVar(&opts.context, "context", "", "explicit Kubernetes context")
 		flags.StringVar(&opts.kubeconfig, "kubeconfig", "", "trusted kubeconfig file")
+	} else if command == "catalog" {
+		flags.StringVar(&opts.input, "input", "", "CRD manifests to turn into a resource catalog")
+		flags.StringVar(&opts.catalog, "catalog", "", "optional base catalog to merge")
 	} else {
 		flags.StringVar(&opts.identities, "identities", "", "identity definitions (otherwise infer subjects)")
 		flags.StringVar(&opts.catalog, "catalog", "", "resource catalog JSON or YAML")
@@ -99,6 +106,7 @@ func parse(command string, args []string, stderr io.Writer) (options, error) {
 		flags.BoolVar(&opts.allowBefore, "allow-empty-before", false, "declare an empty before state")
 		flags.BoolVar(&opts.allowAfter, "allow-empty-after", false, "declare an empty after state")
 		flags.IntVar(&opts.maxClasses, "max-classes", 1000000, "maximum request classes evaluated")
+		flags.BoolVar(&opts.summaryOnly, "summary", false, "show the review summary without detailed changes (text or markdown)")
 	}
 	if err := flags.Parse(args); err != nil {
 		return opts, err
@@ -106,8 +114,11 @@ func parse(command string, args []string, stderr io.Writer) (options, error) {
 	if flags.NArg() != 0 {
 		return opts, fmt.Errorf("unexpected positional arguments")
 	}
-	if command != "snapshot" && !slices.Contains([]string{"text", "markdown", "json"}, opts.format) {
+	if command != "snapshot" && command != "catalog" && !slices.Contains([]string{"text", "markdown", "json"}, opts.format) {
 		return opts, fmt.Errorf("invalid format %q", opts.format)
+	}
+	if opts.summaryOnly && opts.format == "json" {
+		return opts, fmt.Errorf("--summary supports text and markdown; JSON always includes full changes")
 	}
 	return opts, nil
 }
@@ -133,10 +144,22 @@ func compare(opts options, stdout, stderr io.Writer) int {
 			fmt.Fprintln(stderr, err)
 			return 2
 		}
-		before.Catalog, after.Catalog = catalog, catalog
+		before.Catalog, err = model.MergeCatalogs(before.Catalog, catalog)
+		if err == nil {
+			after.Catalog, err = model.MergeCatalogs(after.Catalog, catalog)
+		}
+		if err != nil {
+			fmt.Fprintln(stderr, err)
+			return 2
+		}
 	}
 	result := diff.Compare(before, after, identities, opts.maxClasses)
-	data, err := report.Render(result, opts.format)
+	var data []byte
+	if opts.summaryOnly {
+		data, err = report.RenderSummary(result, opts.format)
+	} else {
+		data, err = report.Render(result, opts.format)
+	}
 	if err == nil {
 		err = report.Write(opts.output, data, stdout)
 	}
@@ -247,7 +270,11 @@ func query(opts options, stdout, stderr io.Writer) int {
 		return 2
 	}
 	if opts.catalog != "" {
-		state.Catalog, err = input.LoadCatalog(opts.catalog)
+		var catalog model.Catalog
+		catalog, err = input.LoadCatalog(opts.catalog)
+		if err == nil {
+			state.Catalog, err = model.MergeCatalogs(state.Catalog, catalog)
+		}
 		if err != nil {
 			fmt.Fprintln(stderr, err)
 			return 2
@@ -291,6 +318,42 @@ func query(opts options, stdout, stderr io.Writer) int {
 		return 2
 	}
 	return code
+}
+
+func catalog(opts options, stdout, stderr io.Writer) int {
+	if opts.input == "" {
+		fmt.Fprintln(stderr, "catalog requires --input with CRD manifests")
+		return 2
+	}
+	state, err := input.Load(opts.input, input.Options{AllowEmpty: true})
+	if err != nil {
+		fmt.Fprintln(stderr, err)
+		return 2
+	}
+	if len(state.Catalog.Resources) == 0 {
+		fmt.Fprintln(stderr, "no served CRD resources found in input")
+		return 2
+	}
+	if opts.catalog != "" {
+		var base model.Catalog
+		base, err = input.LoadCatalog(opts.catalog)
+		if err == nil {
+			state.Catalog, err = model.MergeCatalogs(base, state.Catalog)
+		}
+		if err != nil {
+			fmt.Fprintln(stderr, err)
+			return 2
+		}
+	}
+	data, err := json.MarshalIndent(state.Catalog, "", "  ")
+	if err == nil {
+		err = report.Write(opts.output, append(data, '\n'), stdout)
+	}
+	if err != nil {
+		fmt.Fprintln(stderr, err)
+		return 2
+	}
+	return 0
 }
 
 func snapshot(opts options, stdout, stderr io.Writer) int {

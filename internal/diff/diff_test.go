@@ -38,6 +38,18 @@ func TestWildcardGroupsRespectCatalogScope(t *testing.T) {
 	}
 }
 
+func TestChangedCatalogScopeCannotProduceACompleteDiff(t *testing.T) {
+	before, after, identities := fixtures(t)
+	after.Catalog = model.Catalog{SchemaVersion: "1.0", Resources: []model.Resource{{Name: "configmaps", Namespaced: false}}}
+	result := Compare(before, after, identities, 10000)
+	if result.Scope.Calculation != "incomplete" || len(result.Changes) != 0 {
+		t.Fatalf("scope change produced a conclusive diff: %+v", result)
+	}
+	if !slices.ContainsFunc(result.Diagnostics, func(diagnostic model.Diagnostic) bool { return diagnostic.Code == "catalog_scope_changed" }) {
+		t.Fatal("scope conflict diagnostic is missing")
+	}
+}
+
 func fixtures(t *testing.T) (*model.State, *model.State, []model.Identity) {
 	t.Helper()
 	before, err := input.Load("../../examples/retained/before", input.Options{})

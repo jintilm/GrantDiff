@@ -201,13 +201,16 @@ func addNode(state *model.State, node *yamlv3.Node, source model.Source, opts Op
 		}
 		kindName = kind.Value
 	}
-	if kindName == "List" || slices.Contains([]string{"RoleList", "ClusterRoleList", "RoleBindingList", "ClusterRoleBindingList", "NamespaceList", "ServiceAccountList"}, kindName) {
+	if kindName == "List" || slices.Contains([]string{"RoleList", "ClusterRoleList", "RoleBindingList", "ClusterRoleBindingList", "NamespaceList", "ServiceAccountList", "CustomResourceDefinitionList"}, kindName) {
 		itemKind, itemVersion := "", ""
 		if kindName != "List" {
 			itemKind = strings.TrimSuffix(kindName, "List")
 			itemVersion = "rbac.authorization.k8s.io/v1"
 			if itemKind == "Namespace" || itemKind == "ServiceAccount" {
 				itemVersion = "v1"
+			}
+			if itemKind == "CustomResourceDefinition" {
+				itemVersion = "apiextensions.k8s.io/v1"
 			}
 			version := child(node, "apiVersion")
 			if version == nil || version.Tag != "!!str" || version.Value != itemVersion {
@@ -243,6 +246,8 @@ func addNode(state *model.State, node *yamlv3.Node, source model.Source, opts Op
 		return fmt.Errorf("%s:%d: %w", source.File, source.Line, err)
 	}
 	switch object.Kind {
+	case "CustomResourceDefinition":
+		return addCRD(state, data, source)
 	case "Namespace":
 		state.Namespaces = append(state.Namespaces, object.Metadata.Name)
 		return nil

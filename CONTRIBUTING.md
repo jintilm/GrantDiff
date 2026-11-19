@@ -8,6 +8,10 @@ Core matching and aggregation live in `internal/evaluate`. Request partitions an
 
 New permission semantics should include an independent regression case. Integration tests in `integration/` compare against a real Kubernetes API server. Use `go run ./scripts/integration` to create and clean up an isolated cluster.
 
+Generated policy tests use fixed seeds and write standalone failure inputs under `.work/failures/seed-N/`. Set `GRANTDIFF_TEST_SEED=N` and run the integration command to replay that case. The saved manifests, identities and catalog also work with the normal `diff` entry point. CI uploads verification results and failure fixtures for each Kubernetes version.
+
+The ExternalDNS fixture is pinned to an upstream commit. Changes to its copied files require updating provenance and reviewing the expected report. Report tests cover summary counts, escaping and the CI exit code when `--summary` is selected. CRD tests cover catalog merging, served versions and scope conflicts, with an independent API discovery comparison.
+
 Run `gofmt` on changed Go files. Preserve the documented exit codes and report schema. Describe compatibility implications and update examples when an input or output format changes.
 
 Reports of crashes and wrong authorization conclusions should include the program version, platform, input scope and a minimal reproducer. An issue template is provided in `.github/ISSUE_TEMPLATE/bug.yml`.

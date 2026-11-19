@@ -127,3 +127,71 @@ items:
 		t.Fatalf("typed export lost authorization: %s", stdout.String())
 	}
 }
+
+func TestCRDNormalEntryPoints(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	if code := Run([]string{"catalog", "--input", "../../examples/crd/after"}, &stdout, &stderr); code != 0 {
+		t.Fatalf("catalog returned %d: %s", code, stderr.String())
+	}
+	var generated map[string]any
+	if err := json.Unmarshal(stdout.Bytes(), &generated); err != nil {
+		t.Fatal(err)
+	}
+	if len(generated["resources"].([]any)) != 1 {
+		t.Fatalf("unexpected catalog: %s", stdout.String())
+	}
+	stdout.Reset()
+	args := []string{"diff", "--before", "../../examples/crd/before", "--after", "../../examples/crd/after", "--format", "json"}
+	if code := Run(args, &stdout, &stderr); code != 0 {
+		t.Fatalf("CRD diff returned %d: %s", code, stderr.String())
+	}
+	var result diff.Report
+	if err := json.Unmarshal(stdout.Bytes(), &result); err != nil {
+		t.Fatal(err)
+	}
+	if len(result.Changes) != 1 || result.Changes[0].Type != "added" || result.Changes[0].Request.Subresource != "status" {
+		t.Fatalf("CRD change incorrect: %+v", result.Changes)
+	}
+	stdout.Reset()
+	query := []string{"query", "--input", "../../examples/crd/after", "--identity", "system:serviceaccount:apps:widget-bot", "--api-group", "example.test", "--resource", "widgets", "--subresource", "status", "--verb", "patch", "--namespace", "apps", "--name", "demo", "--format", "json"}
+	if code := Run(query, &stdout, &stderr); code != 0 || !bytes.Contains(stdout.Bytes(), []byte(`"result": "granted"`)) {
+		t.Fatalf("CRD query failed: %d %s %s", code, stdout.String(), stderr.String())
+	}
+	stdout.Reset()
+	summary := []string{"diff", "--before", "../../examples/crd/before", "--after", "../../examples/crd/after", "--summary", "--fail-on", "added", "--format", "markdown"}
+	if code := Run(summary, &stdout, &stderr); code != 1 {
+		t.Fatalf("summary bypassed CI failure: %d", code)
+	}
+	if bytes.Contains(stdout.Bytes(), []byte("<details>")) || !bytes.Contains(stdout.Bytes(), []byte("Added 1")) {
+		t.Fatal("summary rendering incorrect")
+	}
+	if code := Run(append(args, "--summary"), &stdout, &stderr); code != 2 {
+		t.Fatal("JSON summary should be rejected to preserve complete structured output")
+	}
+}
+
+func TestExplicitCatalogMergesWithCRDsAndRejectsConflict(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	args := []string{"catalog", "--input", "../../examples/crd/after", "--catalog", "../../examples/retained/catalog.yaml"}
+	if code := Run(args, &stdout, &stderr); code != 0 {
+		t.Fatal(stderr.String())
+	}
+	if !bytes.Contains(stdout.Bytes(), []byte(`"name": "widgets"`)) || !bytes.Contains(stdout.Bytes(), []byte(`"name": "configmaps"`)) {
+		t.Fatal("merge lost one input source")
+	}
+	file := filepath.Join(t.TempDir(), "conflict.yaml")
+	if err := os.WriteFile(file, []byte("schemaVersion: '1.0'\nresources:\n  - apiGroup: example.test\n    name: widgets\n    namespaced: false\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	for _, args := range [][]string{
+		{"catalog", "--input", "../../examples/crd/after", "--catalog", file},
+		{"diff", "--before", "../../examples/crd/before", "--after", "../../examples/crd/after", "--catalog", file},
+		{"query", "--input", "../../examples/crd/after", "--catalog", file, "--identity", "system:serviceaccount:apps:widget-bot", "--api-group", "example.test", "--resource", "widgets", "--verb", "get", "--name", "demo", "--namespace", "apps"},
+	} {
+		stdout.Reset()
+		stderr.Reset()
+		if code := Run(args, &stdout, &stderr); code != 2 || !bytes.Contains(stderr.Bytes(), []byte("scope conflicts")) {
+			t.Fatalf("scope conflict was not rejected: %d %s", code, stderr.String())
+		}
+	}
+}

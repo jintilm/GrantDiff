@@ -1,0 +1,23 @@
+{
+  "project": "kubernetes-sigs/external-dns",
+  "version": "v0.15.1",
+  "commit": "c55b1a1127df024b95f927869a1bcd662ec4337a",
+  "sourceFiles": [
+    {
+      "path": "kustomize/external-dns-clusterrole.yaml",
+      "url": "https://github.com/kubernetes-sigs/external-dns/blob/c55b1a1127df024b95f927869a1bcd662ec4337a/kustomize/external-dns-clusterrole.yaml",
+      "sha256": "6fe19acdb3e20e6f407437108b392fbb32909a42b3790e495043a59caba66953"
+    },
+    {
+      "path": "kustomize/external-dns-clusterrolebinding.yaml",
+      "url": "https://github.com/kubernetes-sigs/external-dns/blob/c55b1a1127df024b95f927869a1bcd662ec4337a/kustomize/external-dns-clusterrolebinding.yaml",
+      "sha256": "9741c2cbb929c2048848493ae985dba064a78eeef92e7e6b9b033faa2c8361e7"
+    },
+    {
+      "path": "LICENSE.md",
+      "url": "https://github.com/kubernetes-sigs/external-dns/blob/c55b1a1127df024b95f927869a1bcd662ec4337a/LICENSE.md",
+      "sha256": "b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1"
+    }
+  ],
+  "candidateChange": "Locally authored demonstration that adds Secret get/list/watch to the upstream ClusterRole. This is a hypothetical permission change."
+}

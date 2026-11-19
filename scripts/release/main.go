@@ -21,7 +21,7 @@ import (
 )
 
 func main() {
-	version := flag.String("version", "0.4.2-preview", "release version")
+	version := flag.String("version", "0.5.0-preview", "release version")
 	flag.Parse()
 	if err := run(*version); err != nil {
 		fmt.Fprintln(os.Stderr, err)

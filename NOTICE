@@ -11,3 +11,8 @@ license texts generated from the exact module graph.
 Authorization behavior is implemented against the Kubernetes RBAC semantics
 and verified against the Kubernetes API server. Upstream references are listed
 in docs/design.zh-CN.md.
+
+The ExternalDNS example includes configuration from kubernetes-sigs/external-dns
+v0.15.1, commit c55b1a1127df024b95f927869a1bcd662ec4337a. The Apache-2.0
+license and file-level provenance are included under examples/external-dns/.
+The candidate Secret-read rule in that example was authored for GrantDiff.

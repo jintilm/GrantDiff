@@ -67,6 +67,15 @@ func Compare(before, after *model.State, identities []model.Identity, budget int
 	left, right := evaluate.New(before), evaluate.New(after)
 	report.Diagnostics = append(report.Diagnostics, before.Diagnostics...)
 	report.Diagnostics = append(report.Diagnostics, after.Diagnostics...)
+	for _, resource := range before.Catalog.Resources {
+		if candidate, ok := after.Catalog.Find(resource.APIGroup, resource.Name); ok && candidate.Namespaced != resource.Namespaced {
+			report.Scope.Calculation = "incomplete"
+			report.Diagnostics = append(report.Diagnostics, model.Diagnostic{Code: "catalog_scope_changed", Message: "before and after disagree on the scope of " + resource.APIGroup + "/" + resource.Name})
+		}
+	}
+	if report.Scope.Calculation == "incomplete" {
+		return report
+	}
 	unknownResources := map[string]bool{}
 	markUnknownResource := func(group, resource string) {
 		report.Scope.Calculation = "incomplete"

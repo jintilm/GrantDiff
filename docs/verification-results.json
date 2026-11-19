@@ -1,108 +1,179 @@
 {
-  "release": "0.4.2-preview",
+  "project": "GrantDiff",
+  "module": "github.com/jintilm/GrantDiff",
+  "release": "0.5.0-preview",
   "verificationDate": "2026-11-19",
-  "kubernetes": [
-    {
-      "actualRequests": 2,
-      "authorizationComparisons": 1262,
-      "completedAt": "2026-11-19T13:13:39.4687782Z",
-      "kubernetesVersion": "v1.35.8",
-      "result": "passed",
-      "seed": "20261119/7"
-    },
-    {
-      "actualRequests": 2,
-      "authorizationComparisons": 1262,
-      "completedAt": "2026-11-19T13:14:33.9976082Z",
-      "kubernetesVersion": "v1.36.4",
-      "result": "passed",
-      "seed": "20261119/7"
-    },
-    {
-      "actualRequests": 2,
-      "authorizationComparisons": 1262,
-      "completedAt": "2026-11-19T13:15:27.1370783Z",
-      "kubernetesVersion": "v1.37.0",
-      "result": "passed",
-      "seed": "20261119/7"
-    }
-  ],
-  "packages": {
-    "project": "GrantDiff",
-    "release": "0.4.2-preview",
-    "windowsAndUbuntuJSON": "identical",
-    "reportSchema": "passed",
-    "standaloneWindowsArchive": "passed",
-    "standaloneLinuxArchive": "passed",
-    "checksums": "passed",
-    "invalidCatalogExit2": "passed on Windows and Ubuntu"
-  },
-  "inMemoryBenchmark": {
-    "arch": "amd64",
-    "calculation": "complete",
-    "changedObjects": 1,
-    "changes": 2,
-    "comparedClasses": 33,
-    "elapsedMilliseconds": 58,
-    "goVersion": "go1.26.4",
-    "heapInUseBytesAtEnd": 19636224,
-    "identities": 1000,
-    "measurement": "in-memory review; heap sample at end, process peak RSS not measured",
-    "objectsPerState": 10000,
-    "os": "windows",
-    "totalAllocatedBytes": 48173024
-  },
   "unitTestPlatforms": [
     "windows/amd64",
     "linux/amd64"
   ],
   "goVet": "passed",
-  "githubHostedCI": "passed",
+  "kubernetes": [
+    {
+      "kubernetesVersion": "v1.35.8",
+      "authorizationComparisons": 3763,
+      "diffChecks": 1248,
+      "actualRequests": 3,
+      "typedRBACExports": 4,
+      "result": "passed",
+      "authorizationSuite": {
+        "actualRequests": 2,
+        "authorizationComparisons": 1262,
+        "completedAt": "2026-11-19T15:24:02.7015904Z",
+        "kubernetesVersion": "v1.35.8",
+        "result": "passed",
+        "seed": "20261119/7",
+        "typedRBACExports": 4
+      },
+      "generatedPolicies": {
+        "allowed": 288,
+        "authorizationComparisons": 2496,
+        "completedAt": "2026-11-19T15:24:32.2265717Z",
+        "denied": 2208,
+        "diffChecks": 1248,
+        "kubernetesVersion": "v1.35.8",
+        "result": "passed",
+        "seeds": [
+          17,
+          73,
+          101,
+          307,
+          997,
+          65537,
+          20261119,
+          20261120
+        ]
+      },
+      "crd": {
+        "actualRequests": 1,
+        "authorizationComparisons": 5,
+        "discovery": "passed",
+        "result": "passed"
+      }
+    },
+    {
+      "kubernetesVersion": "v1.36.4",
+      "authorizationComparisons": 3763,
+      "diffChecks": 1248,
+      "actualRequests": 3,
+      "typedRBACExports": 4,
+      "result": "passed",
+      "authorizationSuite": {
+        "actualRequests": 2,
+        "authorizationComparisons": 1262,
+        "completedAt": "2026-11-19T15:25:27.2935142Z",
+        "kubernetesVersion": "v1.36.4",
+        "result": "passed",
+        "seed": "20261119/7",
+        "typedRBACExports": 4
+      },
+      "generatedPolicies": {
+        "allowed": 288,
+        "authorizationComparisons": 2496,
+        "completedAt": "2026-11-19T15:25:56.7976471Z",
+        "denied": 2208,
+        "diffChecks": 1248,
+        "kubernetesVersion": "v1.36.4",
+        "result": "passed",
+        "seeds": [
+          17,
+          73,
+          101,
+          307,
+          997,
+          65537,
+          20261119,
+          20261120
+        ]
+      },
+      "crd": {
+        "actualRequests": 1,
+        "authorizationComparisons": 5,
+        "discovery": "passed",
+        "result": "passed"
+      }
+    },
+    {
+      "kubernetesVersion": "v1.37.0",
+      "authorizationComparisons": 3763,
+      "diffChecks": 1248,
+      "actualRequests": 3,
+      "typedRBACExports": 4,
+      "result": "passed",
+      "authorizationSuite": {
+        "actualRequests": 2,
+        "authorizationComparisons": 1262,
+        "completedAt": "2026-11-19T15:19:44.0544189Z",
+        "kubernetesVersion": "v1.37.0",
+        "result": "passed",
+        "seed": "20261119/7",
+        "typedRBACExports": 4
+      },
+      "generatedPolicies": {
+        "allowed": 288,
+        "authorizationComparisons": 2496,
+        "completedAt": "2026-11-19T15:20:17.9752317Z",
+        "denied": 2208,
+        "diffChecks": 1248,
+        "kubernetesVersion": "v1.37.0",
+        "result": "passed",
+        "seeds": [
+          17,
+          73,
+          101,
+          307,
+          997,
+          65537,
+          20261119,
+          20261120
+        ]
+      },
+      "crd": {
+        "actualRequests": 1,
+        "authorizationComparisons": 5,
+        "discovery": "passed",
+        "result": "passed"
+      }
+    }
+  ],
+  "totals": {
+    "authorizationComparisons": 11289,
+    "diffChecks": 3744,
+    "actualRequests": 9
+  },
   "filePipelineBenchmark": {
     "arch": "amd64",
     "calculation": "complete",
     "changedObjects": 1,
     "changes": 2,
     "comparedClasses": 33,
-    "elapsedMilliseconds": 1507,
+    "elapsedMilliseconds": 1564,
     "goVersion": "go1.26.4",
-    "heapInUseBytesAtEnd": 29523968,
+    "heapInUseBytesAtEnd": 36102144,
     "identities": 1000,
     "measurement": "memory mode times analysis; files mode includes input loading and report writing; heap sample at end, process peak RSS not measured",
     "mode": "files",
     "objectsPerState": 10000,
     "os": "windows",
-    "totalAllocatedBytes": 1908818392,
-    "sampledPeakWorkingSetBytes": 179007488,
+    "totalAllocatedBytes": 1909322488,
+    "sampledPeakWorkingSetBytes": 174649344,
     "memorySamplingIntervalMilliseconds": 10,
     "peakMeasurementScope": "whole benchmark process, including fixture generation; compilation excluded"
   },
-  "readinessRegressions": [
-    "indeterminate CI exit status",
-    "wildcard API-group catalog scope",
-    "invalid query shapes",
-    "List versus multi-document policy equivalence"
-  ],
-  "inMemoryBenchmarkRelease": "0.4.0-preview",
-  "packagesVerificationRelease": "0.4.2-preview",
-  "project": "GrantDiff",
-  "module": "github.com/jintilm/GrantDiff",
-  "renameVerification": {
-    "unitTestPlatforms": [
-      "windows/amd64",
-      "linux/amd64"
-    ],
-    "goVet": "passed",
-    "kubernetes": {
-      "actualRequests": 2,
-      "authorizationComparisons": 1262,
-      "completedAt": "2026-11-19T13:46:27.3783881Z",
-      "kubernetesVersion": "v1.37.0",
-      "result": "passed",
-      "seed": "20261119/7"
-    }
+  "filePipelineBenchmarkRelease": "0.5.0-preview",
+  "fixtures": {
+    "externalDNSVersion": "v0.15.1",
+    "externalDNSCommit": "c55b1a1127df024b95f927869a1bcd662ec4337a",
+    "sourceHashes": "passed",
+    "expectedMarkdown": "passed"
   },
-  "hostedVerification": {
+  "reports": {
+    "summaryCounts": "passed",
+    "markdownEscaping": "passed",
+    "summaryCIFailureConditions": "passed",
+    "jsonSchemaVersion": "1.0"
+  },
+  "previousHostedVerification": {
     "sourceCommit": "45a0441fd26cb7f94796f9cc862decc94d597af8",
     "runId": 44538682781,
     "url": "https://github.com/jintilm/GrantDiff/actions/runs/44538682781",
@@ -116,30 +187,18 @@
     ],
     "release": "0.4.1-preview"
   },
-  "inputReadinessVerification": {
-    "release": "0.4.2-preview",
-    "unitTestPlatforms": [
-      "windows/amd64",
-      "linux/amd64"
-    ],
-    "goVet": "passed",
-    "regressions": [
-      "explicit resource catalog scope",
-      "typed List item inheritance",
-      "conflicting typed List item metadata",
-      "CLI rejection of missing catalog scope",
-      "CLI query through typed RBAC exports"
-    ],
-    "kubernetes": {
-      "actualRequests": 2,
-      "authorizationComparisons": 1262,
-      "completedAt": "2026-11-19T14:35:34.5867402Z",
-      "kubernetesVersion": "v1.37.0",
-      "result": "passed",
-      "seed": "20261119/7",
-      "typedRBACExports": 4
-    }
+  "githubHostedCI": "pending for 0.5.0-preview",
+  "packages": {
+    "release": "0.5.0-preview",
+    "windowsAndUbuntuJSON": "identical across three scenarios",
+    "windowsAndUbuntuMarkdown": "identical across three scenarios",
+    "CRDCatalog": "identical",
+    "summaryCIExit1": "passed",
+    "reportSchema": "passed",
+    "standaloneWindowsArchive": "passed",
+    "standaloneLinuxArchive": "passed",
+    "checksums": "passed",
+    "documentationLinks": "passed"
   },
-  "filePipelineBenchmarkRelease": "0.4.1-preview",
-  "kubernetesMatrixRelease": "0.4.1-preview"
+  "packagesVerificationRelease": "0.5.0-preview"
 }

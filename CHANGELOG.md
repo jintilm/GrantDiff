@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.0-preview — 2026-11-19
+
+- Derive resource catalogs from v1 CRDs, including served status and scale subresources, and export them with `grantdiff catalog`.
+- Merge explicit, snapshot and CRD resource knowledge while rejecting conflicting scopes.
+- Add per-identity change summaries, new-access attribution, expandable Markdown evidence and `--summary` with the same CI failure behavior.
+- Add eight deterministic generated policy scenarios, authorization and diff comparisons, seed replay and saved failure fixtures.
+- Verify CRD-derived scope and subresources against Kubernetes discovery and an actual status patch.
+- Include a pinned ExternalDNS RBAC example with source hashes, its upstream license and an expected report.
+- Upload per-version verification results and failure fixtures from GitHub CI.
+
 ## 0.4.2-preview — 2026-11-19
 
 - Reject missing or null resource-catalog scopes instead of silently treating resources as cluster-scoped and omitting namespace permission changes.

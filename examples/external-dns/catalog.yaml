@@ -1,0 +1,23 @@
+schemaVersion: "1.0"
+resources:
+  - apiGroup: ""
+    name: endpoints
+    namespaced: true
+  - apiGroup: ""
+    name: pods
+    namespaced: true
+  - apiGroup: ""
+    name: services
+    namespaced: true
+  - apiGroup: ""
+    name: nodes
+    namespaced: false
+  - apiGroup: ""
+    name: secrets
+    namespaced: true
+  - apiGroup: extensions
+    name: ingresses
+    namespaced: true
+  - apiGroup: networking.k8s.io
+    name: ingresses
+    namespaced: true
