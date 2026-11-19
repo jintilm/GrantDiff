@@ -2,6 +2,8 @@
 
 The preview release is `0.5.0-preview`. Local tests were run on 2026-11-19. Results describe the listed environments and cases. Machine-readable evidence records the authorization, generated-policy, CRD and package checks independently.
 
+GitHub Actions verified source commit `2e2d4b355b7a3f1a39dd63f1078a708191bfc696` successfully. All five jobs passed, covering Windows and Ubuntu unit tests and the three Kubernetes versions below. Each Kubernetes job uploaded its authorization, generated-policy and CRD result files. The run and job identifiers are recorded in `verification-results.json`. [Hosted verification](https://github.com/jintilm/GrantDiff/actions/runs/44557124555)
+
 ## Environments
 
 | Environment | Purpose |

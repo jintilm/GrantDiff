@@ -187,7 +187,62 @@
     ],
     "release": "0.4.1-preview"
   },
-  "githubHostedCI": "pending for 0.5.0-preview",
+  "githubHostedCI": {
+    "sourceCommit": "2e2d4b355b7a3f1a39dd63f1078a708191bfc696",
+    "runId": 44557124555,
+    "url": "https://github.com/jintilm/GrantDiff/actions/runs/44557124555",
+    "conclusion": "success",
+    "release": "0.5.0-preview",
+    "jobs": [
+      {
+        "id": 135676093079,
+        "name": "unit (windows-latest)",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44557124555/job/135676093079"
+      },
+      {
+        "id": 135676093440,
+        "name": "kubernetes (v1.37.0, kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4...",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44557124555/job/135676093440"
+      },
+      {
+        "id": 135676093466,
+        "name": "kubernetes (v1.36.4, kindest/node:v1.36.4@sha256:099e049362a1526b2db71494e1947aae99bd16290d7c895f...",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44557124555/job/135676093466"
+      },
+      {
+        "id": 135676093644,
+        "name": "unit (ubuntu-24.04)",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44557124555/job/135676093644"
+      },
+      {
+        "id": 135676093661,
+        "name": "kubernetes (v1.35.8, kindest/node:v1.35.8@sha256:07b2536e30b803ed61d1677a79df6115f798ce64c80f9e22...",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44557124555/job/135676093661"
+      }
+    ],
+    "artifacts": [
+      {
+        "name": "verification-v1.35.8",
+        "id": 14545427175,
+        "sizeInBytes": 882
+      },
+      {
+        "name": "verification-v1.36.4",
+        "id": 14545577902,
+        "sizeInBytes": 882
+      },
+      {
+        "name": "verification-v1.37.0",
+        "id": 14546252226,
+        "sizeInBytes": 881
+      }
+    ]
+  },
   "packages": {
     "release": "0.5.0-preview",
     "windowsAndUbuntuJSON": "identical across three scenarios",
