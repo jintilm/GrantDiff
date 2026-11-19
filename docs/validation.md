@@ -4,6 +4,8 @@ The local preview release is `0.4.1-preview`. Tests were run on 2026-11-19. Resu
 
 The project now uses the GrantDiff name, the `grantdiff` executable and the Go module `github.com/jintilm/GrantDiff`. After renaming, Windows and Linux unit tests, `go vet`, Windows and Ubuntu archive execution, report equality and the Kubernetes v1.37.0 integration suite were rerun successfully. The v1.35.8 and v1.36.4 entries below retain the preceding verification of the same authorization implementation.
 
+GitHub hosted verification also passed for initial source commit `45a0441fd26cb7f94796f9cc862decc94d597af8`. All five jobs succeeded, covering Windows, Ubuntu and Kubernetes v1.35.8, v1.36.4 and v1.37.0 under the GrantDiff module and command name. [Hosted verification run](https://github.com/jintilm/GrantDiff/actions/runs/44538682781)
+
 ## Environments
 
 | Environment | Purpose |
@@ -59,7 +61,7 @@ Run `go run ./scripts/benchmark --mode files` to time the full pipeline, or use 
 - Acyclic aggregate roles use stable-state semantics. Cycles produce incomplete results, and snapshot queries also use stable-state aggregation.
 - Broad wildcard changes may produce lengthy reports. The comparison budget stops work with an incomplete result instead of exhausting unbounded work.
 - Resource catalogs are supplied explicitly or captured from discovery. CRD manifest metadata is currently handled through an explicit catalog.
-- The repository includes CI definitions and an integration example. Hosted GitHub runs and public repository publication are pending external setup.
+- The public repository includes CI definitions and an integration example. Hosted verification runs execute Windows and Linux unit jobs together with the three-version Kubernetes matrix. [GitHub verification runs](https://github.com/jintilm/GrantDiff/actions/workflows/ci.yml)
 
 The preview version records these limits while the remaining v1.0 acceptance goals in the design document continue to guide development.
 

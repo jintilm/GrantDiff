@@ -57,7 +57,7 @@
     "linux/amd64"
   ],
   "goVet": "passed",
-  "githubHostedCI": "configured; not executed in this local development session",
+  "githubHostedCI": "passed",
   "filePipelineBenchmark": {
     "arch": "amd64",
     "calculation": "complete",
@@ -101,5 +101,18 @@
       "result": "passed",
       "seed": "20261119/7"
     }
+  },
+  "hostedVerification": {
+    "sourceCommit": "45a0441fd26cb7f94796f9cc862decc94d597af8",
+    "runId": 44538682781,
+    "url": "https://github.com/jintilm/GrantDiff/actions/runs/44538682781",
+    "conclusion": "success",
+    "jobs": [
+      "unit (windows-latest)",
+      "unit (ubuntu-24.04)",
+      "Kubernetes v1.35.8",
+      "Kubernetes v1.36.4",
+      "Kubernetes v1.37.0"
+    ]
   }
 }
