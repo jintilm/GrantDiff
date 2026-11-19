@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.2-preview — 2026-11-19
+
+- Reject missing or null resource-catalog scopes instead of silently treating resources as cluster-scoped and omitting namespace permission changes.
+- Decode typed Kubernetes RBAC lists with inherited item kind and API version, while rejecting conflicting item metadata and preserving source positions.
+- Add CLI regressions for both input paths and compare four raw typed API exports with the snapshot model in integration tests.
+
 ## 0.4.1-preview — 2026-11-19
 
 - Adopted GrantDiff as the project name, `grantdiff` as the CLI and `github.com/jintilm/GrantDiff` as the Go module path.

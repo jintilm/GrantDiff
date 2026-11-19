@@ -43,6 +43,8 @@ go build -o bin/grantdiff ./cmd/grantdiff
 
 普通用户的组成员关系由 identities 文件提供。ServiceAccount 的系统组由工具推导。资源目录描述 API group、资源规范名称和命名空间作用域，样例位于 `examples/retained/catalog.yaml`。自定义资源可加入目录文件。
 
+资源目录中的每个资源必须显式填写 `namespaced: true` 或 `namespaced: false`，缺失或 null 会返回输入错误。程序支持 `RoleList`、`RoleBindingList` 等类型化列表，条目省略 kind 和 apiVersion 时从外层列表补全，冲突的类型信息会报错。
+
 报告说明给定输入下的原生 RBAC 授权。缺失角色、未知资源作用域、用户组信息不完整或比较预算耗尽时，报告标记不完整。授权路径中能够确定的证据继续展示。
 
 JSON 中 `representativeRequest` 是范围内的一个示例请求，完整范围由 `range` 表达。`value` 表示精确值，`except` 表示排除指定值后的剩余范围，URL 使用 `prefix` 和 `exceptPrefixes`。当前版本逐项输出请求等价类，通配范围很大时报告可能较长。
@@ -62,7 +64,7 @@ go test ./...
 go vet ./...
 go run ./scripts/integration --kind kind --result .work/verification.json
 go run ./scripts/benchmark --mode files
-go run ./scripts/release --version 0.4.1-preview
+go run ./scripts/release --version 0.4.2-preview
 ```
 
 集成测试程序创建自己的 kind 集群，完成授权对照后清理该集群。可以用 `--image` 选择固定摘要的节点镜像。发布程序在 `dist/` 下生成 Windows 和 Linux 软件包及校验和。

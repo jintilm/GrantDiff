@@ -63,7 +63,9 @@ A missing role, unknown explicit resource scope, incomplete user groups or exhau
 
 User groups come from the identity file. ServiceAccount system groups are derived automatically. Inferred ordinary users have incomplete membership until explicitly supplied. Group-only results use `group_grant`, while user and service account results use `identity_access`. Supply an identities file to focus the review on identities of interest.
 
-Resource catalog examples are in `examples/retained/catalog.yaml`. The catalog specifies API groups, canonical resource names and scope. Snapshots include a discovery-derived catalog. Custom resources can be added to an explicit catalog.
+Resource catalog examples are in `examples/retained/catalog.yaml`. Every resource requires an explicit `namespaced: true` or `namespaced: false`. A missing or null scope is rejected. Snapshots include a discovery-derived catalog. Custom resources can be added to an explicit catalog.
+
+Manifest loading accepts generic Kubernetes `List` objects and typed RBAC lists such as `RoleList` and `RoleBindingList`. Items in a typed list inherit omitted kind and API version from the envelope. Conflicting item metadata is rejected with its source location.
 
 | Exit code | Meaning |
 | --- | --- |
@@ -94,7 +96,7 @@ go test ./...
 go vet ./...
 go run ./scripts/integration --kind kind --result .work/verification.json
 go run ./scripts/benchmark --mode files
-go run ./scripts/release --version 0.4.1-preview
+go run ./scripts/release --version 0.4.2-preview
 ```
 
 The integration runner creates a uniquely named kind cluster, runs real authorization comparisons, and deletes its own cluster. A cached or mirrored image with the pinned digest can be supplied with `--image`. It uses kind v0.33.0 and defaults to Kubernetes v1.37.0.

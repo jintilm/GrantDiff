@@ -78,3 +78,52 @@ func TestWildcardUnknownCannotPassCI(t *testing.T) {
 		}
 	}
 }
+
+func TestOmittedCatalogScopeCannotHideChanges(t *testing.T) {
+	directory := t.TempDir()
+	catalog := filepath.Join(directory, "catalog.yaml")
+	if err := os.WriteFile(catalog, []byte("schemaVersion: '1.0'\nresources:\n  - apiGroup: ''\n    name: configmaps\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	args := []string{"diff", "--before", "../../examples/retained/before", "--after", "../../examples/retained/after", "--identities", "../../examples/retained/identities.yaml", "--catalog", catalog, "--format", "json"}
+	var stdout, stderr bytes.Buffer
+	if code := Run(args, &stdout, &stderr); code != 2 {
+		t.Fatalf("invalid catalog returned %d; stdout=%s stderr=%s", code, stdout.String(), stderr.String())
+	}
+}
+
+func TestQueryAcceptsTypedRBACLists(t *testing.T) {
+	file := filepath.Join(t.TempDir(), "export.yaml")
+	data := `apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleList
+items:
+  - metadata: {name: reader, namespace: finance}
+    rules: [{apiGroups: [""], resources: [configmaps], resourceNames: [billing-config], verbs: [get]}]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBindingList
+items:
+  - metadata: {name: access, namespace: finance}
+    subjects: [{kind: ServiceAccount, name: report-bot, namespace: finance}]
+    roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: reader}
+`
+	if err := os.WriteFile(file, []byte(data), 0600); err != nil {
+		t.Fatal(err)
+	}
+	args := []string{"query", "--input", file, "--identities", "../../examples/retained/identities.yaml", "--catalog", "../../examples/retained/catalog.yaml", "--identity", "report-bot", "--verb", "get", "--resource", "configmaps", "--name", "billing-config", "--namespace", "finance", "--format", "json"}
+	var stdout, stderr bytes.Buffer
+	if code := Run(args, &stdout, &stderr); code != 0 {
+		t.Fatalf("query returned %d: %s", code, stderr.String())
+	}
+	var result struct {
+		Decision struct {
+			Result string `json:"result"`
+		} `json:"decision"`
+	}
+	if err := json.Unmarshal(stdout.Bytes(), &result); err != nil {
+		t.Fatal(err)
+	}
+	if result.Decision.Result != "granted" {
+		t.Fatalf("typed export lost authorization: %s", stdout.String())
+	}
+}

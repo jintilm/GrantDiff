@@ -14,6 +14,7 @@ import (
 	"github.com/jintilm/GrantDiff/internal/cluster"
 	"github.com/jintilm/GrantDiff/internal/diff"
 	"github.com/jintilm/GrantDiff/internal/evaluate"
+	"github.com/jintilm/GrantDiff/internal/input"
 	"github.com/jintilm/GrantDiff/internal/model"
 	core "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
@@ -105,6 +106,7 @@ func TestAuthorizationAgainstKubernetes(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	checkTypedExports(t, ctx, client, before, namespace, prefix)
 	requests := requests(namespace)
 	checks := checkRequests(t, ctx, client, before, identities, requests)
 	// Named list authorization must match a real HTTP request with a selector.
@@ -161,15 +163,43 @@ func TestAuthorizationAgainstKubernetes(t *testing.T) {
 		t.Fatalf("missing semantic changes: retained=%v added=%v removed=%v", retained, added, removed)
 	}
 	checks += checkWildcardCatalog(t, ctx, client, after, stranger, namespace, prefix)
-	t.Logf("Kubernetes %s: %d SubjectAccessReview comparisons, 2 actual list requests, retained + aggregate + wildcard scope verified; seed 20261119/7", metadata.KubernetesVersion, checks)
+	t.Logf("Kubernetes %s: %d SubjectAccessReview comparisons, 2 actual list requests, 4 typed RBAC exports, retained + aggregate + wildcard scope verified; seed 20261119/7", metadata.KubernetesVersion, checks)
 	if path := os.Getenv("GRANTDIFF_TEST_RESULT"); path != "" {
-		result := map[string]any{"kubernetesVersion": metadata.KubernetesVersion, "authorizationComparisons": checks, "actualRequests": 2, "seed": "20261119/7", "result": "passed", "completedAt": time.Now().UTC()}
+		result := map[string]any{"kubernetesVersion": metadata.KubernetesVersion, "authorizationComparisons": checks, "actualRequests": 2, "typedRBACExports": 4, "seed": "20261119/7", "result": "passed", "completedAt": time.Now().UTC()}
 		data, err := json.MarshalIndent(result, "", "  ")
 		if err != nil {
 			t.Fatal(err)
 		}
 		if err := os.WriteFile(path, data, 0600); err != nil {
 			t.Fatal(err)
+		}
+	}
+}
+
+func checkTypedExports(t *testing.T, ctx context.Context, client kubernetes.Interface, snapshot *model.State, namespace, prefix string) {
+	t.Helper()
+	files := []input.File{}
+	for _, resource := range []string{"roles", "clusterroles", "rolebindings", "clusterrolebindings"} {
+		data, err := client.RbacV1().RESTClient().Get().Resource(resource).SetHeader("Accept", "application/json").Do(ctx).Raw()
+		if err != nil {
+			t.Fatal(err)
+		}
+		files = append(files, input.File{Name: resource + ".json", Data: data})
+	}
+	state, err := input.Parse(files, "Kubernetes API exports", input.Options{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	keys := []string{
+		model.Key("Role", namespace, "reader"),
+		model.Key("RoleBinding", namespace, "group"),
+		model.Key("ClusterRole", "", prefix+"-aggregate"),
+		model.Key("ClusterRoleBinding", "", prefix),
+	}
+	for _, key := range keys {
+		object := state.Objects[key]
+		if object == nil || object.Digest() != snapshot.Objects[key].Digest() {
+			t.Fatalf("API export changed or omitted %s", key)
 		}
 	}
 }

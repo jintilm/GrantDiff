@@ -2,7 +2,7 @@
 
 文档版本为 0.3，更新日期为 2026-11-19。项目名称为 **GrantDiff**，命令名为 `grantdiff`，Go 模块路径为 `github.com/jintilm/GrantDiff`。
 
-本文给出产品设计、技术约定和稳定版本验收条件。当前已实现 `0.4.1-preview`，实际使用接口见 README，实际测试结果见 `docs/validation.md`，报告结构见 `docs/report.schema.json`。下述里程碑继续作为稳定版本的目标。
+本文给出产品设计、技术约定和稳定版本验收条件。当前已实现 `0.4.2-preview`，实际使用接口见 README，实际测试结果见 `docs/validation.md`，报告结构见 `docs/report.schema.json`。下述里程碑继续作为稳定版本的目标。
 
 当前实现使用 Go 标准库 `flag`、主体绑定索引和请求等价类比较。支持目录、Git、快照、候选变更与三种报告格式。YAML 输入限制采用固定安全上限并要求预先展开别名。聚合计算统一采用无环依赖稳定状态，快照查询同样使用此语义。请求等价类逐项输出，范围合并属于后续改进。项目许可证已采用 Apache-2.0。
 

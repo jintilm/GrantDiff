@@ -1,6 +1,6 @@
 # Validation record
 
-The local preview release is `0.4.1-preview`. Tests were run on 2026-11-19. Results here describe the listed environments and cases.
+The local preview release is `0.4.2-preview`. Tests were run on 2026-11-19. Results here describe the listed environments and cases. The three-version matrix and performance measurements below record the preceding 0.4.1 implementation. The 0.4.2 input-validation checks are described in the readiness review below and reported separately in the machine-readable results.
 
 The project now uses the GrantDiff name, the `grantdiff` executable and the Go module `github.com/jintilm/GrantDiff`. After renaming, Windows and Linux unit tests, `go vet`, Windows and Ubuntu archive execution, report equality and the Kubernetes v1.37.0 integration suite were rerun successfully. The v1.35.8 and v1.36.4 entries below retain the preceding verification of the same authorization implementation.
 
@@ -70,5 +70,13 @@ The preview version records these limits while the remaining v1.0 acceptance goa
 The review reproduced and fixed inconsistent completion status, missing wildcard catalog partitions and incomplete query validation. It also added full-pipeline performance evidence and reduced List input memory use. These are covered by targeted regressions and the runtime checks above.
 
 The next development stage should extend policy-combination coverage and report usability. Useful acceptance cases include randomized roles and bindings compared with the API server, public controller RBAC examples with reproducible expected results, readable summaries for broad changes, and resource-catalog generation from CRD manifests. Stable-release decisions should use these cases together with the existing verification matrix.
+
+## 0.4.2 input-readiness review
+
+A catalog entry without `namespaced` previously defaulted to cluster scope. A CLI regression reproduced a complete report with zero changes for a namespace permission change. Catalog loading now requires an explicit boolean and rejects missing, null or invalid values with exit code 2.
+
+Typed `RoleList` and other RBAC exports can omit item kind and API version. The loader now inherits these values from the typed envelope and rejects conflicting metadata. Tests verify source positions and a successful query through typed Role and RoleBinding exports. The integration test additionally reads all four RBAC resource lists as raw Kubernetes API responses and compares representative objects with the snapshot model.
+
+The next milestone remains 0.5, focused on broader policy combinations, readable change summaries and CRD resource-catalog support. The input corrections are included in the preview patch so that the new scenarios can rely on consistent input handling.
 
 Machine-readable local results are stored in `verification-results.json`. Package validation compared Windows and Ubuntu JSON output, validated the report against `report.schema.json`, checked archive checksums and executable permissions, ran the extracted Windows package, exercised snapshot-based upserts and verified that a stale baseline is rejected. Linux unit tests executed with networking disabled and dependencies mounted from the local module cache.

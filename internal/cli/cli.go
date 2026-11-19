@@ -20,7 +20,7 @@ import (
 	"github.com/jintilm/GrantDiff/internal/report"
 )
 
-var Version = "0.4.1-preview"
+var Version = "0.4.2-preview"
 
 type options struct {
 	before, after, repo, base, head, path, baseline, changes               string

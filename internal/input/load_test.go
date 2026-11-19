@@ -31,6 +31,40 @@ func TestListAndMultiDocumentInputsAgree(t *testing.T) {
 	}
 }
 
+func TestTypedListItemsInheritTypeMetadata(t *testing.T) {
+	data := `apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleList
+items:
+  - metadata: {name: reader, namespace: finance}
+    rules: [{apiGroups: [""], resources: [configmaps], verbs: [get]}]
+`
+	state, err := Parse([]File{{Name: "roles.yaml", Data: []byte(data)}}, "test", Options{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	role := state.Objects["Role/finance/reader"]
+	if role == nil || role.APIVersion != "rbac.authorization.k8s.io/v1" {
+		t.Fatalf("typed List lost type metadata: %+v", state)
+	}
+	if role.Source.Line != 4 {
+		t.Fatalf("item location changed: %+v", role.Source)
+	}
+}
+
+func TestTypedListsRejectConflictingTypeMetadata(t *testing.T) {
+	data := `apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleList
+items:
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata: {name: reader}
+    rules: [{apiGroups: [""], resources: [nodes], verbs: [get]}]
+`
+	if _, err := Parse([]File{{Name: "roles.yaml", Data: []byte(data)}}, "test", Options{}); err == nil {
+		t.Fatal("RoleList accepted a ClusterRole item")
+	}
+}
+
 func TestInvalidAndDuplicateInputs(t *testing.T) {
 	valid := `apiVersion: rbac.authorization.k8s.io/v1
 kind: Role

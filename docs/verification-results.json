@@ -1,5 +1,5 @@
 {
-  "release": "0.4.1-preview",
+  "release": "0.4.2-preview",
   "verificationDate": "2026-11-19",
   "kubernetes": [
     {
@@ -29,13 +29,13 @@
   ],
   "packages": {
     "project": "GrantDiff",
-    "release": "0.4.1-preview",
+    "release": "0.4.2-preview",
     "windowsAndUbuntuJSON": "identical",
     "reportSchema": "passed",
     "standaloneWindowsArchive": "passed",
     "standaloneLinuxArchive": "passed",
     "checksums": "passed",
-    "commandName": "grantdiff"
+    "invalidCatalogExit2": "passed on Windows and Ubuntu"
   },
   "inMemoryBenchmark": {
     "arch": "amd64",
@@ -84,7 +84,7 @@
     "List versus multi-document policy equivalence"
   ],
   "inMemoryBenchmarkRelease": "0.4.0-preview",
-  "packagesVerificationRelease": "0.4.1-preview",
+  "packagesVerificationRelease": "0.4.2-preview",
   "project": "GrantDiff",
   "module": "github.com/jintilm/GrantDiff",
   "renameVerification": {
@@ -113,6 +113,33 @@
       "Kubernetes v1.35.8",
       "Kubernetes v1.36.4",
       "Kubernetes v1.37.0"
-    ]
-  }
+    ],
+    "release": "0.4.1-preview"
+  },
+  "inputReadinessVerification": {
+    "release": "0.4.2-preview",
+    "unitTestPlatforms": [
+      "windows/amd64",
+      "linux/amd64"
+    ],
+    "goVet": "passed",
+    "regressions": [
+      "explicit resource catalog scope",
+      "typed List item inheritance",
+      "conflicting typed List item metadata",
+      "CLI rejection of missing catalog scope",
+      "CLI query through typed RBAC exports"
+    ],
+    "kubernetes": {
+      "actualRequests": 2,
+      "authorizationComparisons": 1262,
+      "completedAt": "2026-11-19T14:35:34.5867402Z",
+      "kubernetesVersion": "v1.37.0",
+      "result": "passed",
+      "seed": "20261119/7",
+      "typedRBACExports": 4
+    }
+  },
+  "filePipelineBenchmarkRelease": "0.4.1-preview",
+  "kubernetesMatrixRelease": "0.4.1-preview"
 }

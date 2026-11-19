@@ -202,6 +202,18 @@ func addNode(state *model.State, node *yamlv3.Node, source model.Source, opts Op
 		kindName = kind.Value
 	}
 	if kindName == "List" || slices.Contains([]string{"RoleList", "ClusterRoleList", "RoleBindingList", "ClusterRoleBindingList", "NamespaceList", "ServiceAccountList"}, kindName) {
+		itemKind, itemVersion := "", ""
+		if kindName != "List" {
+			itemKind = strings.TrimSuffix(kindName, "List")
+			itemVersion = "rbac.authorization.k8s.io/v1"
+			if itemKind == "Namespace" || itemKind == "ServiceAccount" {
+				itemVersion = "v1"
+			}
+			version := child(node, "apiVersion")
+			if version == nil || version.Tag != "!!str" || version.Value != itemVersion {
+				return fmt.Errorf("%s:%d: %s requires apiVersion %s", source.File, source.Line, kindName, itemVersion)
+			}
+		}
 		items := child(node, "items")
 		if items == nil || items.Kind != yamlv3.SequenceNode {
 			return fmt.Errorf("%s:%d: List requires items", source.File, source.Line)
@@ -209,6 +221,13 @@ func addNode(state *model.State, node *yamlv3.Node, source model.Source, opts Op
 		for _, item := range items.Content {
 			itemSource := source
 			itemSource.Line = item.Line
+			if itemKind != "" {
+				var err error
+				item, err = typedListItem(item, itemKind, itemVersion)
+				if err != nil {
+					return fmt.Errorf("%s:%d: %w", source.File, itemSource.Line, err)
+				}
+			}
 			if err := addNode(state, item, itemSource, opts); err != nil {
 				return err
 			}
@@ -317,6 +336,29 @@ func addNode(state *model.State, node *yamlv3.Node, source model.Source, opts Op
 	}
 	state.Objects[object.Key()] = &object
 	return nil
+}
+
+// Typed Kubernetes lists carry the item kind and version on the envelope.
+// Add missing metadata on a copy and retain the original item coordinates.
+func typedListItem(item *yamlv3.Node, kind, version string) (*yamlv3.Node, error) {
+	if item.Kind != yamlv3.MappingNode {
+		return nil, fmt.Errorf("%sList items must be objects", kind)
+	}
+	result := *item
+	result.Content = slices.Clone(item.Content)
+	for _, field := range []struct{ name, value string }{{"kind", kind}, {"apiVersion", version}} {
+		if value := child(item, field.name); value != nil {
+			if value.Tag != "!!str" || value.Value != field.value {
+				return nil, fmt.Errorf("%sList item conflicts with %s %q", kind, field.name, field.value)
+			}
+			continue
+		}
+		result.Content = append(result.Content,
+			&yamlv3.Node{Kind: yamlv3.ScalarNode, Tag: "!!str", Value: field.name, Line: item.Line},
+			&yamlv3.Node{Kind: yamlv3.ScalarNode, Tag: "!!str", Value: field.value, Line: item.Line},
+		)
+	}
+	return &result, nil
 }
 
 func ValidateObject(object *model.Object) error {

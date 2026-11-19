@@ -45,19 +45,39 @@ func LoadIdentities(path string) ([]model.Identity, error) {
 }
 
 func LoadCatalog(path string) (model.Catalog, error) {
+	// Keep scope optional while decoding so omission cannot become false.
+	var document struct {
+		SchemaVersion     string `json:"schemaVersion"`
+		KubernetesVersion string `json:"kubernetesVersion,omitempty"`
+		Resources         []struct {
+			APIGroup     string   `json:"apiGroup"`
+			Name         string   `json:"name"`
+			Namespaced   *bool    `json:"namespaced"`
+			Subresources []string `json:"subresources,omitempty"`
+		} `json:"resources"`
+	}
 	var catalog model.Catalog
-	if err := Config(path, &catalog); err != nil {
+	if err := Config(path, &document); err != nil {
 		return catalog, err
 	}
-	if catalog.SchemaVersion != "1.0" {
+	if document.SchemaVersion != "1.0" {
 		return catalog, fmt.Errorf("unsupported catalog schemaVersion")
 	}
+	catalog.SchemaVersion = document.SchemaVersion
+	catalog.KubernetesVersion = document.KubernetesVersion
 	seen := map[string]bool{}
-	for _, resource := range catalog.Resources {
+	for _, resource := range document.Resources {
 		key := resource.APIGroup + "/" + resource.Name
 		if resource.Name == "" || seen[key] || strings.ContainsAny(resource.Name, "/*") {
 			return catalog, fmt.Errorf("invalid or duplicate resource %q", key)
 		}
+		if resource.Namespaced == nil {
+			return catalog, fmt.Errorf("resource %q requires an explicit namespaced boolean", key)
+		}
+		catalog.Resources = append(catalog.Resources, model.Resource{
+			APIGroup: resource.APIGroup, Name: resource.Name,
+			Namespaced: *resource.Namespaced, Subresources: resource.Subresources,
+		})
 		seen[key] = true
 	}
 	return catalog, nil
