@@ -49,9 +49,20 @@ jobs:
         continue-on-error: true
         run: |
           mkdir -p .work
-          gh api repos/jintilm/GrantDiff/actions/jobs/136052832588/logs > .work/previous-failure.log
+          curl --fail --silent --show-error --location \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "$GITHUB_API_URL/repos/jintilm/GrantDiff/actions/jobs/136052832588/logs" \
+            --output .work/previous-failure.log
+          test -s .work/previous-failure.log
         env:
           GH_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: matrix.version == 'v1.37.0'
+        with:
+          name: previous-ci-failure
+          include-hidden-files: true
+          path: .work/previous-failure.log
       - run: |
           mkdir -p .work
           go run ./scripts/integration --image "$NODE_IMAGE" --result .work/verification.json 2>&1 | tee .work/integration.log
