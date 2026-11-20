@@ -23,6 +23,9 @@ jobs:
   kubernetes:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
     strategy:
       fail-fast: false
       matrix:
@@ -41,7 +44,18 @@ jobs:
         with:
           go-version: 1.26.4
       - run: go install sigs.k8s.io/kind@v0.33.0
-      - run: go run ./scripts/integration --image "$NODE_IMAGE" --result .work/verification.json
+      - name: Retain the previous failed job log for diagnosis
+        if: matrix.version == 'v1.37.0'
+        continue-on-error: true
+        run: |
+          mkdir -p .work
+          gh api repos/jintilm/GrantDiff/actions/jobs/136052832588/logs > .work/previous-failure.log
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - run: |
+          mkdir -p .work
+          go run ./scripts/integration --image "$NODE_IMAGE" --result .work/verification.json 2>&1 | tee .work/integration.log
+        shell: bash
         env:
           NODE_IMAGE: ${{ matrix.image }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -51,4 +65,5 @@ jobs:
           include-hidden-files: true
           path: |
             .work/verification*.json
+            .work/*.log
             .work/failures/**
