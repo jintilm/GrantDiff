@@ -49,9 +49,6 @@ jobs:
   package-test:
     needs: packages
     runs-on: ${{ matrix.os }}
-    permissions:
-      contents: read
-      actions: read
     strategy:
       fail-fast: false
       matrix:
@@ -72,19 +69,6 @@ jobs:
           name: release-packages
           path: dist
       - run: python -m pip install -r scripts/packagecheck/requirements.txt
-      - name: Retrieve the first Windows package failure
-        if: matrix.platform == 'linux'
-        continue-on-error: true
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          mkdir -p .work
-          curl --fail --silent --show-error --location \
-            -H "Authorization: Bearer $GH_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            "$GITHUB_API_URL/repos/jintilm/GrantDiff/actions/jobs/136071049782/logs" \
-            --output .work/package-previous.log
       - run: |
           mkdir -p .work
           python scripts/packagecheck/verify.py --version "$RELEASE_VERSION" --result ".work/package-$PACKAGE_PLATFORM.json" 2>&1 | tee ".work/package-$PACKAGE_PLATFORM.log"

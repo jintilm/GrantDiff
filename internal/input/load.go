@@ -40,11 +40,11 @@ func Load(path string, opts Options) (*model.State, error) {
 		}
 		return Parse([]File{{filepath.Base(path), data}}, path, opts)
 	}
-	root, err := filepath.EvalSymlinks(path)
+	root, err := filepath.Abs(path)
 	if err != nil {
 		return nil, err
 	}
-	root, err = filepath.Abs(root)
+	root, err = filepath.EvalSymlinks(root)
 	if err != nil {
 		return nil, err
 	}

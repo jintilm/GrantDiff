@@ -56,7 +56,9 @@ The compact ExternalDNS report has three ranges covering the same requests as th
 
 The second pinned controller fixture uses kube-state-metrics v2.14.0 commit `e763ea2aa37e7fa507775a8506387aaa95ff17d1`. Its locally authored candidate removes Secret list/watch. The compact report records two removed ranges and 24 evidence-path changes for grants in the edited rule. Tests check upstream hashes, subject, resource, verbs, evidence and the complete expected Markdown.
 
-The RC review identified two input-boundary corrections. Snapshot schema 1.1 now verifies the complete policy/identity and catalog files before parsing the same bytes. CLI tests cover intact and legacy snapshots, modified policy, modified identities, changed catalog scope and missing hashes. Candidate deletion of every policy now requires the documented explicit empty-after flag, with a regression checking preservation of the baseline.
+The RC review identified snapshot and candidate-input corrections. Snapshot schema 1.1 now verifies the complete policy/identity and catalog files before parsing the same bytes. CLI tests cover intact and legacy snapshots, modified policy, modified identities, changed catalog scope and missing hashes. Candidate deletion of every policy now requires the documented explicit empty-after flag, with a regression checking preservation of the baseline.
+
+Native Windows package checks exposed short working-directory aliases in runner temporary paths. Both archive verification and manifest input loading now resolve the absolute root before containment comparisons. A Windows regression reproduces the original input-boundary rejection using `GetShortPathName`, then verifies successful loading and relative evidence paths with the correction. Genuine path escapes retain their existing regression. Package-test logs are uploaded on both successful and failed runs.
 
 Reproduction commands are available in README. Environment-specific tests are opt-in through the isolated integration runner. A plain `go test ./...` skips the live-cluster test when no isolated kubeconfig is supplied.
 

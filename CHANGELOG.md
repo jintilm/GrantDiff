@@ -5,6 +5,7 @@
 - Define the candidate runtime, authorization, CLI and format compatibility contract.
 - Persist snapshot schema 1.1 with file hashes covering RBAC, captured identities and catalogs, while accepting legacy schema 1.0 snapshots.
 - Require explicit empty-after acknowledgement when candidate operations delete all RBAC objects.
+- Normalize absolute input roots before resolving filesystem aliases so Windows short working directories retain correct boundary checks.
 - Add a pinned kube-state-metrics permission-narrowing example with upstream provenance, license and expected report.
 - Automate native extracted-archive checks, schema validation, documented failure codes and Windows/Linux output parity.
 - Gate tagged releases on unit, Kubernetes and package checks and publish the verified archives with checksums.
