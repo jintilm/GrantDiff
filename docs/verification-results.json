@@ -252,7 +252,62 @@
       }
     ]
   },
-  "githubHostedCI": "pending for 0.6.0-preview",
+  "githubHostedCI": {
+    "sourceCommit": "02be07941549b12d3a9e54573273d3d3f0a9fc88",
+    "runId": 44664854922,
+    "url": "https://github.com/jintilm/GrantDiff/actions/runs/44664854922",
+    "conclusion": "success",
+    "release": "0.6.0-preview",
+    "jobs": [
+      {
+        "id": 136051538817,
+        "name": "unit (windows-latest)",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44664854922/job/136051538817"
+      },
+      {
+        "id": 136051539090,
+        "name": "kubernetes (v1.36.4, kindest/node:v1.36.4@sha256:099e049362a1526b2db71494e1947aae99bd16290d7c895f...",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44664854922/job/136051539090"
+      },
+      {
+        "id": 136051539128,
+        "name": "kubernetes (v1.37.0, kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4...",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44664854922/job/136051539128"
+      },
+      {
+        "id": 136051539184,
+        "name": "unit (ubuntu-24.04)",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44664854922/job/136051539184"
+      },
+      {
+        "id": 136051539242,
+        "name": "kubernetes (v1.35.8, kindest/node:v1.35.8@sha256:07b2536e30b803ed61d1677a79df6115f798ce64c80f9e22...",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44664854922/job/136051539242"
+      }
+    ],
+    "artifacts": [
+      {
+        "name": "verification-v1.35.8",
+        "id": 14596423818,
+        "sizeInBytes": 888
+      },
+      {
+        "name": "verification-v1.36.4",
+        "id": 14597696763,
+        "sizeInBytes": 888
+      },
+      {
+        "name": "verification-v1.37.0",
+        "id": 14596513535,
+        "sizeInBytes": 888
+      }
+    ]
+  },
   "packagesVerificationRelease": "0.6.0-preview",
   "wildcardBenchmarks": [
     {

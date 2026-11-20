@@ -2,7 +2,7 @@
 
 The preview release is `0.6.0-preview`. Local tests were run on 2026-11-20. Results describe the listed environments and cases. Machine-readable evidence records authorization, generated-policy, compaction, CRD and package checks independently.
 
-The preceding 0.5 release passed all five hosted jobs at source commit `2e2d4b355b7a3f1a39dd63f1078a708191bfc696`. Hosted verification for 0.6 will be recorded after the source is pushed. [Previous hosted verification](https://github.com/jintilm/GrantDiff/actions/runs/44557124555)
+GitHub Actions verified source commit `02be07941549b12d3a9e54573273d3d3f0a9fc88` successfully. All five jobs passed, covering Windows and Ubuntu unit tests and the three Kubernetes versions below. Each Kubernetes job uploaded its authorization, generated-policy and CRD results, including the compact coverage checks. The run and job identifiers are recorded in `verification-results.json`. [Hosted verification](https://github.com/jintilm/GrantDiff/actions/runs/44664854922)
 
 ## Environments
 
