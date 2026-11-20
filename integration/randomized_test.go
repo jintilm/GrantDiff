@@ -64,7 +64,7 @@ func TestGeneratedAuthorizationCombinations(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	checks, diffChecks, allowed, denied := 0, 0, 0, 0
+	checks, diffChecks, compactChecks, allowed, denied := 0, 0, 0, 0, 0
 	for _, seed := range seeds {
 		t.Run(fmt.Sprintf("seed_%d", seed), func(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
@@ -98,6 +98,7 @@ func TestGeneratedAuthorizationCombinations(t *testing.T) {
 			denied += len(current) - afterAllowed
 			checks += len(old) + len(current)
 			review := diff.Compare(before, after, scenario.Identities, 100000)
+			compacted := diff.Compact(review)
 			for identityIndex, identity := range scenario.Identities {
 				for requestIndex, request := range scenario.Requests {
 					index := identityIndex*len(scenario.Requests) + requestIndex
@@ -118,7 +119,14 @@ func TestGeneratedAuthorizationCombinations(t *testing.T) {
 						writeScenarioFailure(t, scenario, before, after, identity, request, review)
 						t.Fatalf("seed=%d subject=%s request=%+v expected=%q matched=%+v", seed, identity.Username(), request, expected, matches)
 					}
+					original := matchingSemantics(review, identity.Username(), request)
+					merged := matchingSemantics(compacted, identity.Username(), request)
+					if !slices.Equal(original, merged) {
+						writeScenarioFailure(t, scenario, before, after, identity, request, compacted)
+						t.Fatalf("seed=%d compact coverage or evidence changed for subject=%s request=%+v", seed, identity.Username(), request)
+					}
 					diffChecks++
+					compactChecks++
 				}
 			}
 		})
@@ -129,9 +137,9 @@ func TestGeneratedAuthorizationCombinations(t *testing.T) {
 	if allowed == 0 || denied == 0 {
 		t.Fatal("generated suite must exercise allowed and denied decisions")
 	}
-	t.Logf("Kubernetes %s: seeds=%v authorization comparisons=%d (allowed=%d denied=%d), diff checks=%d", version.GitVersion, seeds, checks, allowed, denied, diffChecks)
+	t.Logf("Kubernetes %s: seeds=%v authorization comparisons=%d (allowed=%d denied=%d), diff checks=%d, compact checks=%d", version.GitVersion, seeds, checks, allowed, denied, diffChecks, compactChecks)
 	if path := os.Getenv("GRANTDIFF_TEST_RESULT"); path != "" {
-		result := map[string]any{"kubernetesVersion": version.GitVersion, "seeds": seeds, "authorizationComparisons": checks, "diffChecks": diffChecks, "allowed": allowed, "denied": denied, "result": "passed", "completedAt": time.Now().UTC()}
+		result := map[string]any{"kubernetesVersion": version.GitVersion, "seeds": seeds, "authorizationComparisons": checks, "diffChecks": diffChecks, "compactChecks": compactChecks, "allowed": allowed, "denied": denied, "result": "passed", "completedAt": time.Now().UTC()}
 		data, err := json.MarshalIndent(result, "", "  ")
 		if err != nil {
 			t.Fatal(err)
@@ -312,6 +320,18 @@ func rangeContains(region diff.Region, request model.Request) bool {
 		}
 	}
 	return true
+}
+
+func matchingSemantics(review diff.Report, subject string, request model.Request) []string {
+	result := []string{}
+	for _, change := range review.Changes {
+		if change.Subject == subject && rangeContains(change.Range, request) {
+			change.ID, change.Range, change.Request = "", nil, model.Request{}
+			result = append(result, model.Hash(change))
+		}
+	}
+	slices.Sort(result)
+	return result
 }
 
 func writeScenarioFailure(t *testing.T, scenario generatedScenario, before, after *model.State, identity model.Identity, request model.Request, review diff.Report) {

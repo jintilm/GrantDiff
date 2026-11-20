@@ -20,7 +20,7 @@ import (
 	"github.com/jintilm/GrantDiff/internal/report"
 )
 
-var Version = "0.5.0-preview"
+var Version = "0.6.0-preview"
 
 type options struct {
 	before, after, repo, base, head, path, baseline, changes               string
@@ -29,6 +29,7 @@ type options struct {
 	allowBefore, allowAfter                                                bool
 	maxClasses                                                             int
 	summaryOnly                                                            bool
+	compact                                                                bool
 	request                                                                model.Request
 }
 
@@ -107,6 +108,7 @@ func parse(command string, args []string, stderr io.Writer) (options, error) {
 		flags.BoolVar(&opts.allowAfter, "allow-empty-after", false, "declare an empty after state")
 		flags.IntVar(&opts.maxClasses, "max-classes", 1000000, "maximum request classes evaluated")
 		flags.BoolVar(&opts.summaryOnly, "summary", false, "show the review summary without detailed changes (text or markdown)")
+		flags.BoolVar(&opts.compact, "compact", false, "merge compatible request ranges with identical decisions, risks and evidence")
 	}
 	if err := flags.Parse(args); err != nil {
 		return opts, err
@@ -154,6 +156,9 @@ func compare(opts options, stdout, stderr io.Writer) int {
 		}
 	}
 	result := diff.Compare(before, after, identities, opts.maxClasses)
+	if opts.compact {
+		result = diff.Compact(result)
+	}
 	var data []byte
 	if opts.summaryOnly {
 		data, err = report.RenderSummary(result, opts.format)

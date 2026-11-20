@@ -16,7 +16,7 @@ ServiceAccount finance/report-bot
 
 [中文说明](README.zh-CN.md) · [Design](docs/design.zh-CN.md) · [Validation](docs/validation.md)
 
-Version `0.5.0-preview` adds CRD-derived resource catalogs, per-identity summaries and expandable Markdown evidence. The pinned [ExternalDNS example](examples/external-dns/README.md) demonstrates a controller permission review with an expected report.
+Version `0.6.0-preview` adds optional range compaction and reproducible wildcard benchmarks. CRD-derived resource catalogs, per-identity summaries and expandable Markdown evidence support reviews. The pinned [ExternalDNS example](examples/external-dns/README.md) includes full and compact expected reports.
 
 ## Build and try
 
@@ -43,6 +43,7 @@ grantdiff snapshot --context kind-grantdiff-dev --kubeconfig kubeconfig --output
 grantdiff diff --baseline snapshot/ --changes changes.yaml --identities identities.yaml --format json
 grantdiff catalog --input examples/crd/after --output widgets-catalog.json
 grantdiff diff --before examples/crd/before --after examples/crd/after --summary --format markdown
+grantdiff diff --before examples/external-dns/before --after examples/external-dns/after --catalog examples/external-dns/catalog.yaml --compact --format markdown
 ```
 
 Run `grantdiff COMMAND --help` for the complete flags. Choose `text`, `markdown`, or `json`. A comparison budget defaults to one million request classes and is configurable with `--max-classes`. Inputs are limited to 10,000 files, 64 MiB total and 64 YAML nesting levels. Expand YAML aliases before review. Empty before or after states require `--allow-empty-before` or `--allow-empty-after`.
@@ -61,7 +62,9 @@ The authorization model is `kubernetes-rbac`. Conclusions apply to the supplied 
 | `path_changed` | Access remains granted through a different set of paths |
 | `indeterminate` | Missing policy or identity information prevents a decision |
 
-JSON ranges are request equivalence classes. `value` means exact equality, `except` means all values except the listed ones, and URL `prefix` / `exceptPrefixes` describe prefix regions. `representativeRequest` supplies one example within a range. A `range` carries the full change scope, including unnamed or future resources covered by wildcards. The current reporter emits individual classes, which can produce large reports for broad rules.
+JSON ranges describe request sets. `value` means exact equality, `except` means all values except the listed ones, and URL `prefix` / `exceptPrefixes` describe prefix regions. `representativeRequest` supplies one example within a range. A `range` carries the full change scope, including unnamed or future resources covered by wildcards. The default reporter emits individual equivalence classes, which can produce large reports for broad rules.
+
+`--compact` joins compatible ranges with identical identities, change types, before/after decisions, risk findings and complete evidence, including source locations. Each merge fills an explicitly excluded value in one dimension while preserving every other dimension. URL prefix exclusions remain enforced. Counts describe the resulting ranges and IDs are derived from those ranges. `comparedClasses` records the original analysis work, and incomplete status, diagnostics and CI failure conditions remain applicable. Compaction uses the existing schema 1.0 selectors and can be combined with `--summary`.
 
 Text and Markdown start with counts by change type and affected identity or group, followed by the bindings and roles behind new access. Markdown places each detailed range inside an expandable section. `--summary` shows the overview and diagnostics while applying the same CI failure conditions. Counts refer to request ranges, which may include many object names. JSON retains the complete schema 1.0 report.
 
@@ -106,12 +109,15 @@ go test ./...
 go vet ./...
 go run ./scripts/integration --kind kind --result .work/verification.json
 go run ./scripts/benchmark --mode files
-go run ./scripts/release --version 0.5.0-preview
+go run ./scripts/benchmark --mode files --scenario wildcard --compact
+go run ./scripts/release --version 0.6.0-preview
 ```
 
 The integration runner creates a uniquely named kind cluster, runs real authorization comparisons, and deletes its own cluster. A cached or mirrored image with the pinned digest can be supplied with `--image`. It uses kind v0.33.0 and defaults to Kubernetes v1.37.0.
 
-Generated scenarios use eight fixed PCG seeds to vary roles, bindings and group membership. They compare before/after decisions with SubjectAccessReview and check that the diff covers each changed request exactly once. Set `GRANTDIFF_TEST_SEED` to replay one seed. A failure writes input manifests, identities, catalog, request and report under `.work/failures/`. CI uploads these files and the verification JSON results for each Kubernetes version.
+Generated scenarios use eight fixed PCG seeds to vary roles, bindings and group membership. They compare before/after decisions with SubjectAccessReview, check that the diff covers each changed request exactly once, and verify compacted coverage, risks and evidence for every sampled request. Set `GRANTDIFF_TEST_SEED` to replay one seed. A failure writes input manifests, identities, catalog, request and report under `.work/failures/`. CI uploads these files and the verification JSON results for each Kubernetes version.
+
+The benchmark offers `sparse` and `wildcard` scenarios. File mode records loading, comparison, compaction, output time and report size separately. `--max-classes` exercises the budget limit, with the resulting calculation status recorded in the output.
 
 The release command creates Windows x86-64 ZIP and Linux x86-64 tar.gz packages and SHA-256 checksums under `dist/`. CI runs native unit tests on Windows and Ubuntu and API oracle tests on three Kubernetes versions. Actual verification records and current limits are maintained in `docs/validation.md`.
 

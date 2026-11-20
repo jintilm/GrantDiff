@@ -12,6 +12,8 @@ Generated policy tests use fixed seeds and write standalone failure inputs under
 
 The ExternalDNS fixture is pinned to an upstream commit. Changes to its copied files require updating provenance and reviewing the expected report. Report tests cover summary counts, escaping and the CI exit code when `--summary` is selected. CRD tests cover catalog merging, served versions and scope conflicts, with an independent API discovery comparison.
 
+Range compaction must preserve request coverage, decisions, risk findings and source evidence. The compact regression suite checks exclusions, URL prefixes, input immutability, deterministic output and idempotence. Generated cluster tests compare the complete matching change semantics before and after compaction. Exercise both forms of the wildcard benchmark when changing partitioning or compaction.
+
 Run `gofmt` on changed Go files. Preserve the documented exit codes and report schema. Describe compatibility implications and update examples when an input or output format changes.
 
 Reports of crashes and wrong authorization conclusions should include the program version, platform, input scope and a minimal reproducer. An issue template is provided in `.github/ISSUE_TEMPLATE/bug.yml`.

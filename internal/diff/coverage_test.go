@@ -81,3 +81,26 @@ func TestPartitionPreservesRuleTruth(t *testing.T) {
 		}
 	}
 }
+
+func TestSubresourcePartitionsRequireParentNameAndNamespace(t *testing.T) {
+	grants := []evaluate.Grant{{Rule: rbac.PolicyRule{APIGroups: []string{""}, Resources: []string{"pods/log", "nodes/proxy"}, Verbs: []string{"get", "list", "watch", "create", "*"}}}}
+	state := model.NewState()
+	state.Catalog = model.Catalog{Resources: []model.Resource{{Name: "pods", Namespaced: true, Subresources: []string{"log"}}, {Name: "nodes", Namespaced: false, Subresources: []string{"proxy"}}}}
+	count := 0
+	walkRequests(grants, state, state, func(request model.Request, region Region) bool {
+		if request.Subresource == "" {
+			return true
+		}
+		count++
+		if err := evaluate.CheckRequest(request, state.Catalog); err != nil {
+			t.Fatalf("invalid subresource representative: %+v: %v", request, err)
+		}
+		if contains(region["name"], "") || request.Resource == "pods" && contains(region["namespace"], "") {
+			t.Fatalf("subresource range includes an absent parent or namespace: %+v", region)
+		}
+		return true
+	})
+	if count == 0 {
+		t.Fatal("no subresource requests compared")
+	}
+}

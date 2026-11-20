@@ -87,3 +87,49 @@ func TestExternalDNSProvenance(t *testing.T) {
 		}
 	}
 }
+
+func TestCompactExternalDNSReviewAndExitCodes(t *testing.T) {
+	root := "../../examples/external-dns"
+	args := []string{"diff", "--before", root + "/before", "--after", root + "/after", "--catalog", root + "/catalog.yaml", "--format", "json", "--fail-on", "high", "--compact"}
+	var stdout, stderr bytes.Buffer
+	if code := Run(args, &stdout, &stderr); code != 1 {
+		t.Fatalf("compacted high-risk review returned %d: %s", code, stderr.String())
+	}
+	var result diff.Report
+	if err := json.Unmarshal(stdout.Bytes(), &result); err != nil {
+		t.Fatal(err)
+	}
+	if len(result.Changes) != 3 || result.Scope.Calculation != "complete" {
+		t.Fatalf("unexpected compacted report: %+v", result)
+	}
+	verbs := []string{}
+	for _, change := range result.Changes {
+		if change.Type != "added" || change.Request.Resource != "secrets" || len(change.Risk) != 1 || change.Risk[0].ID != "secret_read" || len(change.AfterEvidence) != 1 {
+			t.Fatalf("compact report lost meaning: %+v", change)
+		}
+		verbs = append(verbs, change.Request.Verb)
+	}
+	slices.Sort(verbs)
+	if !slices.Equal(verbs, []string{"get", "list", "watch"}) {
+		t.Fatal("compact report lost Secret verbs")
+	}
+	stdout.Reset()
+	if code := Run(append(args, "--format", "markdown"), &stdout, &stderr); code != 1 {
+		t.Fatalf("compact Markdown returned %d", code)
+	}
+	expected, err := os.ReadFile(root + "/expected-compact.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(bytes.ReplaceAll(expected, []byte("\r\n"), []byte("\n")), stdout.Bytes()) {
+		t.Fatal("compact Markdown differs from the reviewed expected report")
+	}
+	stdout.Reset()
+	if code := Run(append(args, "--format", "markdown", "--summary"), &stdout, &stderr); code != 1 || !bytes.Contains(stdout.Bytes(), []byte("High-risk ranges 3")) || bytes.Contains(stdout.Bytes(), []byte("<details>")) {
+		t.Fatalf("compact summary changed CI failure: %d %s", code, stdout.String())
+	}
+	stdout.Reset()
+	if code := Run(append(args, "--max-classes", "1"), &stdout, &stderr); code != 3 || !bytes.Contains(stdout.Bytes(), []byte("budget_exceeded")) {
+		t.Fatalf("compact budget failure returned %d: %s", code, stdout.String())
+	}
+}

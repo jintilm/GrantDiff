@@ -136,6 +136,9 @@ func walkRequests(grants []evaluate.Grant, before, after *model.State, visit fun
 							continue
 						}
 						for _, name := range cells(names, true) {
+							if sub.witness != "" && (name.witness == "" || known && knownResource.Namespaced && namespace.witness == "") {
+								continue
+							}
 							if sub.witness == "" && slices.Contains([]string{"create", "deletecollection"}, verb.witness) && name.witness != "" {
 								continue
 							}

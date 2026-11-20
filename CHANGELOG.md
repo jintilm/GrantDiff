@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.0-preview — 2026-11-20
+
+- Add `diff --compact` to merge compatible request ranges with identical decisions, risks and complete evidence using schema 1.0 selectors.
+- Preserve range coverage, representative requests, exclusions, diagnostics and CI failure conditions during compaction.
+- Exclude subresource request ranges without a parent name or required namespace.
+- Compare compact and original change semantics for every generated Kubernetes request sample.
+- Add a compact ExternalDNS expected report and normal CLI regressions for high-risk and incomplete results.
+- Extend the benchmark with a wildcard workload, per-stage timing, report size and budget-limited runs.
+
 ## 0.5.0-preview — 2026-11-19
 
 - Derive resource catalogs from v1 CRDs, including served status and scale subresources, and export them with `grantdiff catalog`.
