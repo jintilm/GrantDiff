@@ -108,7 +108,7 @@
       "authorizationSuite": {
         "actualRequests": 2,
         "authorizationComparisons": 1262,
-        "completedAt": "2026-11-20T02:55:27.3995468Z",
+        "completedAt": "2026-11-20T03:21:19.4306428Z",
         "kubernetesVersion": "v1.37.0",
         "result": "passed",
         "seed": "20261119/7",
@@ -118,7 +118,7 @@
         "allowed": 288,
         "authorizationComparisons": 2496,
         "compactChecks": 1248,
-        "completedAt": "2026-11-20T02:55:56.9329926Z",
+        "completedAt": "2026-11-20T03:21:49.5535425Z",
         "denied": 2208,
         "diffChecks": 1248,
         "kubernetesVersion": "v1.37.0",
@@ -253,58 +253,84 @@
     ]
   },
   "githubHostedCI": {
-    "sourceCommit": "02be07941549b12d3a9e54573273d3d3f0a9fc88",
-    "runId": 44664854922,
-    "url": "https://github.com/jintilm/GrantDiff/actions/runs/44664854922",
+    "sourceCommit": "ef86b5502165bf07a15f519f2409591d5d022ed2",
+    "runId": 44667007944,
+    "url": "https://github.com/jintilm/GrantDiff/actions/runs/44667007944",
     "conclusion": "success",
     "release": "0.6.0-preview",
     "jobs": [
       {
-        "id": 136051538817,
+        "id": 136058630728,
         "name": "unit (windows-latest)",
         "conclusion": "success",
-        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44664854922/job/136051538817"
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44667007944/job/136058630728"
       },
       {
-        "id": 136051539090,
-        "name": "kubernetes (v1.36.4, kindest/node:v1.36.4@sha256:099e049362a1526b2db71494e1947aae99bd16290d7c895f...",
-        "conclusion": "success",
-        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44664854922/job/136051539090"
-      },
-      {
-        "id": 136051539128,
+        "id": 136058630980,
         "name": "kubernetes (v1.37.0, kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4...",
         "conclusion": "success",
-        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44664854922/job/136051539128"
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44667007944/job/136058630980"
       },
       {
-        "id": 136051539184,
+        "id": 136058631193,
         "name": "unit (ubuntu-24.04)",
         "conclusion": "success",
-        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44664854922/job/136051539184"
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44667007944/job/136058631193"
       },
       {
-        "id": 136051539242,
+        "id": 136058631832,
+        "name": "kubernetes (v1.36.4, kindest/node:v1.36.4@sha256:099e049362a1526b2db71494e1947aae99bd16290d7c895f...",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44667007944/job/136058631832"
+      },
+      {
+        "id": 136058631902,
         "name": "kubernetes (v1.35.8, kindest/node:v1.35.8@sha256:07b2536e30b803ed61d1677a79df6115f798ce64c80f9e22...",
         "conclusion": "success",
-        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44664854922/job/136051539242"
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44667007944/job/136058631902"
       }
     ],
     "artifacts": [
       {
         "name": "verification-v1.35.8",
-        "id": 14596423818,
-        "sizeInBytes": 888
+        "id": 14598181684,
+        "sizeInBytes": 2200
       },
       {
         "name": "verification-v1.36.4",
-        "id": 14597696763,
-        "sizeInBytes": 888
+        "id": 14598695570,
+        "sizeInBytes": 2204
       },
       {
         "name": "verification-v1.37.0",
-        "id": 14596513535,
-        "sizeInBytes": 888
+        "id": 14598460950,
+        "sizeInBytes": 2201
+      }
+    ],
+    "verifiedResults": [
+      {
+        "kubernetesVersion": "v1.35.8",
+        "authorizationComparisons": 3763,
+        "diffChecks": 1248,
+        "compactChecks": 1248,
+        "actualRequests": 3,
+        "integrationLog": "retained"
+      },
+      {
+        "kubernetesVersion": "v1.36.4",
+        "authorizationComparisons": 3763,
+        "diffChecks": 1248,
+        "compactChecks": 1248,
+        "actualRequests": 3,
+        "integrationLog": "retained"
+      },
+      {
+        "kubernetesVersion": "v1.37.0",
+        "authorizationComparisons": 3763,
+        "diffChecks": 1248,
+        "compactChecks": 1248,
+        "actualRequests": 3,
+        "integrationLog": "retained"
       }
     ]
   },
@@ -419,5 +445,19 @@
     "standaloneLinuxArchive": "passed",
     "checksums": "passed",
     "documentationLinks": "passed"
+  },
+  "integrationCaptureRecovery": {
+    "maxAttempts": 5,
+    "intervalMilliseconds": 100,
+    "retryableError": "ErrCaptureChanged",
+    "regressions": "passed",
+    "observedFailureRun": 44665243675,
+    "observedFailureSeed": 101,
+    "postFixLocalKubernetes": "v1.37.0",
+    "postFixHostedVersions": [
+      "v1.35.8",
+      "v1.36.4",
+      "v1.37.0"
+    ]
   }
 }
