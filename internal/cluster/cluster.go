@@ -3,6 +3,7 @@ package cluster
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -19,6 +20,8 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
+
+var ErrCaptureChanged = errors.New("RBAC or identity objects changed during capture; retry snapshot")
 
 type Snapshot struct {
 	SchemaVersion     string            `json:"schemaVersion"`
@@ -70,7 +73,7 @@ func Capture(ctx context.Context, client kubernetes.Interface) (*model.State, Sn
 	// Two complete reads expose changes observed during collection. They are not
 	// a cross-resource transaction; capture metadata records that limitation.
 	if canonicalDigest(first) != canonicalDigest(second) {
-		return nil, metadata, nil, fmt.Errorf("RBAC or identity objects changed during capture; retry snapshot")
+		return nil, metadata, nil, ErrCaptureChanged
 	}
 	metadata.ResourceVersions = versions
 	data, err := json.Marshal(map[string]any{"apiVersion": "v1", "kind": "List", "items": second})

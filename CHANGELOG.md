@@ -8,6 +8,8 @@
 - Compare compact and original change semantics for every generated Kubernetes request sample.
 - Add a compact ExternalDNS expected report and normal CLI regressions for high-risk and incomplete results.
 - Extend the benchmark with a wildcard workload, per-stage timing, report size and budget-limited runs.
+- Retry observed snapshot drift within the isolated integration harness, with five attempts and regression checks for persistent drift, API failures and cancellation.
+- Preserve integration logs in CI artifacts with the test command's exit status.
 
 ## 0.5.0-preview — 2026-11-19
 

@@ -102,7 +102,7 @@ func TestAuthorizationAgainstKubernetes(t *testing.T) {
 		t.Fatal(err)
 	}
 	waitAggregate(t, ctx, client, aggregate.Name, "get")
-	before, _, _, err := cluster.Capture(ctx, client)
+	before, _, _, err := captureStable(t, ctx, client)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -138,7 +138,7 @@ func TestAuthorizationAgainstKubernetes(t *testing.T) {
 		t.Fatal(err)
 	}
 	waitAggregate(t, ctx, client, aggregate.Name, "list")
-	after, metadata, _, err := cluster.Capture(ctx, client)
+	after, metadata, _, err := captureStable(t, ctx, client)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -228,7 +228,7 @@ func checkWildcardCatalog(t *testing.T, ctx context.Context, client kubernetes.I
 	if _, err := client.RbacV1().RoleBindings(namespace).Create(ctx, binding, metav1.CreateOptions{}); err != nil {
 		t.Fatal(err)
 	}
-	after, _, _, err := cluster.Capture(ctx, client)
+	after, _, _, err := captureStable(t, ctx, client)
 	if err != nil {
 		t.Fatal(err)
 	}

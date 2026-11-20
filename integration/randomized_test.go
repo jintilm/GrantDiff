@@ -71,7 +71,7 @@ func TestGeneratedAuthorizationCombinations(t *testing.T) {
 			defer cancel()
 			scenario := generateScenario(seed)
 			createScenario(t, ctx, client, scenario)
-			before, _, _, err := cluster.Capture(ctx, client)
+			before, _, _, err := captureStable(t, ctx, client)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -89,7 +89,7 @@ func TestGeneratedAuthorizationCombinations(t *testing.T) {
 			if err := client.RbacV1().RoleBindings(scenario.Namespace).Delete(ctx, scenario.Bindings[1].Name, metav1.DeleteOptions{}); err != nil {
 				t.Fatal(err)
 			}
-			after, _, _, err := cluster.Capture(ctx, client)
+			after, _, _, err := captureStable(t, ctx, client)
 			if err != nil {
 				t.Fatal(err)
 			}

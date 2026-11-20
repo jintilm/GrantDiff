@@ -15,6 +15,8 @@ GitHub Actions verified source commit `02be07941549b12d3a9e54573273d3d3f0a9fc88`
 
 Dependencies were downloaded through an accessible Go proxy after the default endpoint timed out. Node images were retrieved through a mirror using the exact upstream release digests below. Test clusters are created with unique names and removed after each run.
 
+A hosted Kubernetes 1.37 run detected changing RBAC or identity objects during the after-state capture for generated seed `101`. The consistency check rejected that capture. The integration harness now retries that specific consistency error for at most five captures, with 100 ms between attempts and the scenario context as a deadline. Regressions verify recovery after one changing capture, failure after persistent drift, immediate API-error propagation and cancellation. CI retains its full integration log. [Observed capture failure](https://github.com/jintilm/GrantDiff/actions/runs/44665243675/job/136052832588)
+
 ## Kubernetes authorization checks
 
 | Kubernetes | Node image SHA-256 | Authorization comparisons | Generated diff checks | Compact coverage checks | Actual HTTP requests |

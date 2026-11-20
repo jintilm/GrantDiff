@@ -125,7 +125,7 @@ func TestCRDCatalogAgainstDiscovery(t *testing.T) {
 	if _, err := client.RbacV1().RoleBindings(namespace).Create(ctx, &rbac.RoleBinding{ObjectMeta: metav1.ObjectMeta{Name: binding.Metadata.Name}, Subjects: binding.Subjects, RoleRef: binding.RoleRef}, metav1.CreateOptions{}); err != nil {
 		t.Fatal(err)
 	}
-	_, _, _, err = cluster.Capture(ctx, client)
+	_, _, _, err = captureStable(t, ctx, client)
 	if err != nil {
 		t.Fatal(err)
 	}
