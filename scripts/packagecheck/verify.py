@@ -21,6 +21,7 @@ def require(condition, message):
 
 
 def extract(archive_path, destination):
+    destination = destination.resolve()
     if archive_path.suffix == ".zip":
         with zipfile.ZipFile(archive_path) as archive:
             for entry in archive.infolist():
