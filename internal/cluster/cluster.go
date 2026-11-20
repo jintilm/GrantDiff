@@ -2,6 +2,7 @@ package cluster
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -31,6 +32,7 @@ type Snapshot struct {
 	Digest            string            `json:"digest"`
 	Consistency       string            `json:"consistency"`
 	ResourceVersions  map[string]string `json:"resourceVersions"`
+	FileDigests       map[string]string `json:"fileDigests,omitempty"`
 }
 
 func Config(path, contextName string) (*rest.Config, error) {
@@ -236,6 +238,11 @@ func Save(directory string, state *model.State, metadata Snapshot, data []byte) 
 	if err != nil {
 		return err
 	}
+	metadata.SchemaVersion = "1.1"
+	metadata.FileDigests = map[string]string{
+		"rbac.json":    fmt.Sprintf("%x", sha256.Sum256(data)),
+		"catalog.json": fmt.Sprintf("%x", sha256.Sum256(catalog)),
+	}
 	meta, err := json.MarshalIndent(metadata, "", "  ")
 	if err != nil {
 		return err
@@ -246,6 +253,37 @@ func Save(directory string, state *model.State, metadata Snapshot, data []byte) 
 		}
 	}
 	return os.Rename(temp, directory)
+}
+
+// Load accepts legacy snapshots and verifies all persisted input bytes in 1.1.
+func Load(directory string, opts input.Options) (*model.State, error) {
+	var metadata Snapshot
+	if err := input.Config(filepath.Join(directory, "metadata.json"), &metadata); err != nil {
+		return nil, err
+	}
+	if metadata.SchemaVersion != "1.0" && metadata.SchemaVersion != "1.1" {
+		return nil, fmt.Errorf("unsupported snapshot schema %q", metadata.SchemaVersion)
+	}
+	files := map[string][]byte{}
+	for _, name := range []string{"rbac.json", "catalog.json"} {
+		data, err := input.ReadLimited(filepath.Join(directory, name))
+		if err != nil {
+			return nil, err
+		}
+		if metadata.SchemaVersion == "1.1" && metadata.FileDigests[name] != fmt.Sprintf("%x", sha256.Sum256(data)) {
+			return nil, fmt.Errorf("snapshot file digest mismatch: %s", name)
+		}
+		files[name] = data
+	}
+	state, err := input.Parse([]input.File{{Name: "rbac.json", Data: files["rbac.json"]}}, "snapshot:"+filepath.ToSlash(directory), opts)
+	if err != nil {
+		return nil, err
+	}
+	if state.Digest() != metadata.Digest {
+		return nil, fmt.Errorf("snapshot RBAC digest mismatch")
+	}
+	state.Catalog, err = input.ParseCatalog(files["catalog.json"])
+	return state, err
 }
 
 func Review(ctx context.Context, client kubernetes.Interface, identity model.Identity, request model.Request) (bool, error) {

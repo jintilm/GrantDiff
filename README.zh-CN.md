@@ -2,7 +2,9 @@
 
 在 Windows 和 Linux 上评审 Kubernetes RBAC 变更，查看权限增加、权限撤销和权限仍然保留的具体原因。
 
-项目提供目录比较、Git 提交比较、单项权限查询、CRD 资源目录生成、集群快照和基于快照的候选变更。输出支持文本、Markdown 和 JSON。当前版本为 `0.6.0-preview`。
+项目提供目录比较、Git 提交比较、单项权限查询、CRD 资源目录生成、集群快照和基于快照的候选变更。输出支持文本、Markdown 和 JSON。当前版本为首个候选稳定版 `1.0.0-rc.1`。
+
+RC 阶段固定候选支持范围，完善快照完整性校验、真实项目案例与自动发布验证。支持约定和版本边界已写入兼容性文档。[兼容性约定](docs/compatibility.md) · [候选版说明](docs/releases/v1.0.0-rc.1.md)
 
 ## 运行演示
 
@@ -16,6 +18,8 @@ cd GrantDiff
 ```
 
 发行包包含程序、样例和文档。解压后，Linux 使用 `./grantdiff`，Windows 使用 `./grantdiff.exe`，后接下面命令中的 `diff` 参数即可运行样例。
+
+下载页提供 Windows/Linux x86-64 软件包和 `SHA256SUMS`。Windows 可用 `Get-FileHash -Algorithm SHA256`，Linux 可用 `sha256sum` 核对下载文件。[版本下载](https://github.com/jintilm/GrantDiff/releases)
 
 ```text
 go run ./cmd/grantdiff diff --before examples/retained/before --after examples/retained/after --identities examples/retained/identities.yaml --catalog examples/retained/catalog.yaml
@@ -60,9 +64,14 @@ go run ./cmd/grantdiff catalog --input examples/crd/after
 go run ./cmd/grantdiff diff --before examples/crd/before --after examples/crd/after --summary --format markdown
 go run ./cmd/grantdiff diff --before examples/external-dns/before --after examples/external-dns/after --catalog examples/external-dns/catalog.yaml --summary --fail-on high
 go run ./cmd/grantdiff diff --before examples/external-dns/before --after examples/external-dns/after --catalog examples/external-dns/catalog.yaml --compact --format markdown
+go run ./cmd/grantdiff diff --before examples/kube-state-metrics/before --after examples/kube-state-metrics/after --catalog examples/kube-state-metrics/catalog.json --compact --fail-on removed
 ```
 
 ExternalDNS 案例固定了上游版本和文件哈希，候选清单中的 Secret 读取规则是本项目编写的假设变更。预期报告与来源均随仓库保存。[ExternalDNS 案例](examples/external-dns/README.md) · [CRD 案例](examples/crd/README.md)
+
+kube-state-metrics 案例固定 v2.14.0 的上游权限配置，演示撤销 Secret 的 list/watch 授权。其余受同一规则保护的资源仍被授予权限，报告会记录规则证据的变化。[kube-state-metrics 案例](examples/kube-state-metrics/README.md)
+
+新快照采用 Schema 1.1，校验完整的 RBAC/身份清单和资源目录文件。旧版 Schema 1.0 继续按原有 RBAC 摘要规则读取，其身份和目录依赖输入来源的可信性。候选变更删除全部 RBAC 对象时，需要显式使用 `--allow-empty-after`。
 
 | 退出码 | 含义 |
 | --- | --- |
@@ -80,10 +89,14 @@ go vet ./...
 go run ./scripts/integration --kind kind --result .work/verification.json
 go run ./scripts/benchmark --mode files
 go run ./scripts/benchmark --mode files --scenario wildcard --compact
-go run ./scripts/release --version 0.6.0-preview
+go run ./scripts/release --version 1.0.0-rc.1
+python -m pip install -r scripts/packagecheck/requirements.txt
+python scripts/packagecheck/verify.py --version 1.0.0-rc.1 --result .work/package-native.json
 ```
 
 集成测试程序创建自己的 kind 集群，完成授权对照后清理该集群。可以用 `--image` 选择固定摘要的节点镜像。发布程序在 `dist/` 下生成 Windows 和 Linux 软件包及校验和。
+
+CI 会构建同一组安装包，在 Windows 和 Ubuntu 分别解压运行，再比较输出指纹。自动检查覆盖四组案例、JSON Schema、退出码、中文和空格路径、BOM/CRLF、只读输入及文档链接。带版本标签的发布流程在这些检查通过后上传安装包。
 
 组合测试通过八个固定种子生成角色、绑定和组成员关系，分别核对权限判定、差异覆盖，以及合并前后每个采样请求的变化类型、风险和证据。设置环境变量 `GRANTDIFF_TEST_SEED` 可重跑一个种子。失败时，完整清单、身份、请求和报告保存到 `.work/failures/`，CI 会上传这些文件。
 

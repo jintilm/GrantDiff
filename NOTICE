@@ -16,3 +16,9 @@ The ExternalDNS example includes configuration from kubernetes-sigs/external-dns
 v0.15.1, commit c55b1a1127df024b95f927869a1bcd662ec4337a. The Apache-2.0
 license and file-level provenance are included under examples/external-dns/.
 The candidate Secret-read rule in that example was authored for GrantDiff.
+
+The kube-state-metrics example includes configuration from
+kubernetes/kube-state-metrics v2.14.0, commit
+e763ea2aa37e7fa507775a8506387aaa95ff17d1. Its Apache-2.0 license and source
+hashes are included under examples/kube-state-metrics/. The candidate removal
+of Secret observation was authored for GrantDiff.

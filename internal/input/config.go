@@ -45,6 +45,18 @@ func LoadIdentities(path string) ([]model.Identity, error) {
 }
 
 func LoadCatalog(path string) (model.Catalog, error) {
+	data, err := ReadLimited(path)
+	if err != nil {
+		return model.Catalog{}, err
+	}
+	catalog, err := ParseCatalog(data)
+	if err != nil {
+		return catalog, fmt.Errorf("%s: %w", path, err)
+	}
+	return catalog, nil
+}
+
+func ParseCatalog(data []byte) (model.Catalog, error) {
 	// Keep scope optional while decoding so omission cannot become false.
 	var document struct {
 		SchemaVersion     string `json:"schemaVersion"`
@@ -57,7 +69,7 @@ func LoadCatalog(path string) (model.Catalog, error) {
 		} `json:"resources"`
 	}
 	var catalog model.Catalog
-	if err := Config(path, &document); err != nil {
+	if err := yaml.UnmarshalStrict(data, &document); err != nil {
 		return catalog, err
 	}
 	if document.SchemaVersion != "1.0" {

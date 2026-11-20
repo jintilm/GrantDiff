@@ -20,7 +20,7 @@ import (
 	"github.com/jintilm/GrantDiff/internal/report"
 )
 
-var Version = "0.6.0-preview"
+var Version = "1.0.0-rc.1"
 
 type options struct {
 	before, after, repo, base, head, path, baseline, changes               string
@@ -229,20 +229,7 @@ func states(opts options) (*model.State, *model.State, error) {
 
 func loadState(path string, opts input.Options) (*model.State, error) {
 	if _, err := os.Stat(filepath.Join(path, "metadata.json")); err == nil {
-		var metadata cluster.Snapshot
-		if err := input.Config(filepath.Join(path, "metadata.json"), &metadata); err != nil {
-			return nil, err
-		}
-		state, err := input.Load(filepath.Join(path, "rbac.json"), opts)
-		if err != nil {
-			return nil, err
-		}
-		if metadata.SchemaVersion != "1.0" || state.Digest() != metadata.Digest {
-			return nil, fmt.Errorf("invalid snapshot metadata or digest")
-		}
-		state.Catalog, err = input.LoadCatalog(filepath.Join(path, "catalog.json"))
-		state.Origin = "snapshot:" + filepath.ToSlash(path)
-		return state, err
+		return cluster.Load(path, opts)
 	}
 	return input.Load(path, opts)
 }

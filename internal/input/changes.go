@@ -3,6 +3,7 @@ package input
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/jintilm/GrantDiff/internal/model"
 )
 
@@ -66,6 +67,9 @@ func ApplyChanges(before *model.State, path string, opts Options) (*model.State,
 		default:
 			return nil, fmt.Errorf("unsupported operation %q", change.Action)
 		}
+	}
+	if len(after.Objects) == 0 && !opts.AllowEmpty {
+		return nil, fmt.Errorf("candidate has no RBAC objects; explicitly allow an empty after state if intended")
 	}
 	return after, nil
 }

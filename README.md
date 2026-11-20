@@ -14,13 +14,15 @@ ServiceAccount finance/report-bot
   → get configmaps/billing-config
 ```
 
-[中文说明](README.zh-CN.md) · [Design](docs/design.zh-CN.md) · [Validation](docs/validation.md)
+[中文说明](README.zh-CN.md) · [Design](docs/design.zh-CN.md) · [Compatibility](docs/compatibility.md) · [Validation](docs/validation.md)
 
-Version `0.6.0-preview` adds optional range compaction and reproducible wildcard benchmarks. CRD-derived resource catalogs, per-identity summaries and expandable Markdown evidence support reviews. The pinned [ExternalDNS example](examples/external-dns/README.md) includes full and compact expected reports.
+Version `1.0.0-rc.1` is the first release candidate. It defines the candidate support contract, verifies complete snapshot files and automates native archive checks. Pinned ExternalDNS and kube-state-metrics examples demonstrate added and removed permissions with reviewed expected reports. [Candidate notes](docs/releases/v1.0.0-rc.1.md)
 
 ## Build and try
 
 Release archives include the executable, example inputs and documentation. After extracting an archive, run the example with `./grantdiff` on Linux or `./grantdiff.exe` on Windows, followed by the `diff` arguments below.
+
+The release page provides both platform archives and `SHA256SUMS`. Verify a downloaded archive with `Get-FileHash -Algorithm SHA256` on Windows or `sha256sum` on Linux. [Release downloads](https://github.com/jintilm/GrantDiff/releases)
 
 Use Go 1.26 or newer. Dependency versions are pinned in `go.mod` and `go.sum`.
 
@@ -44,6 +46,7 @@ grantdiff diff --baseline snapshot/ --changes changes.yaml --identities identiti
 grantdiff catalog --input examples/crd/after --output widgets-catalog.json
 grantdiff diff --before examples/crd/before --after examples/crd/after --summary --format markdown
 grantdiff diff --before examples/external-dns/before --after examples/external-dns/after --catalog examples/external-dns/catalog.yaml --compact --format markdown
+grantdiff diff --before examples/kube-state-metrics/before --after examples/kube-state-metrics/after --catalog examples/kube-state-metrics/catalog.json --compact --fail-on removed
 ```
 
 Run `grantdiff COMMAND --help` for the complete flags. Choose `text`, `markdown`, or `json`. A comparison budget defaults to one million request classes and is configurable with `--max-classes`. Inputs are limited to 10,000 files, 64 MiB total and 64 YAML nesting levels. Expand YAML aliases before review. Empty before or after states require `--allow-empty-before` or `--allow-empty-after`.
@@ -92,6 +95,8 @@ Manifest loading accepts generic Kubernetes `List` objects and typed RBAC lists 
 
 Snapshot uses a user-selected trusted kubeconfig and context. Required reads include all namespaces, ServiceAccounts, four RBAC kinds and API discovery. The output contains policy and identity metadata, a resource catalog and capture metadata. Two observations detect changes during collection. A snapshot describes a capture interval across resource types.
 
+New snapshot schema 1.1 records SHA-256 hashes of the complete `rbac.json` and `catalog.json` files, covering captured identities and resource scope as well as policy. Legacy schema 1.0 snapshots remain readable with their original RBAC-only integrity check. The compatibility document describes the trust and consistency boundaries.
+
 ```yaml
 schemaVersion: "1.0"
 baselineDigest: REPLACE_WITH_SNAPSHOT_DIGEST
@@ -100,7 +105,7 @@ changes:
     key: RoleBinding/finance/direct-read
 ```
 
-`upsert` operations supply a complete `object` with a matching key. An optional `beforeDigest` guards an individual object. The baseline digest is required. Every unmentioned baseline object continues to participate in review.
+`upsert` operations supply a complete `object` with a matching key. An optional `beforeDigest` guards an individual object. The baseline digest is required. Every unmentioned baseline object continues to participate in review. A candidate deleting all RBAC objects requires `--allow-empty-after`.
 
 ## Development and verification
 
@@ -110,7 +115,9 @@ go vet ./...
 go run ./scripts/integration --kind kind --result .work/verification.json
 go run ./scripts/benchmark --mode files
 go run ./scripts/benchmark --mode files --scenario wildcard --compact
-go run ./scripts/release --version 0.6.0-preview
+go run ./scripts/release --version 1.0.0-rc.1
+python -m pip install -r scripts/packagecheck/requirements.txt
+python scripts/packagecheck/verify.py --version 1.0.0-rc.1 --result .work/package-native.json
 ```
 
 The integration runner creates a uniquely named kind cluster, runs real authorization comparisons, and deletes its own cluster. A cached or mirrored image with the pinned digest can be supplied with `--image`. It uses kind v0.33.0 and defaults to Kubernetes v1.37.0.
@@ -119,7 +126,7 @@ Generated scenarios use eight fixed PCG seeds to vary roles, bindings and group 
 
 The benchmark offers `sparse` and `wildcard` scenarios. File mode records loading, comparison, compaction, output time and report size separately. `--max-classes` exercises the budget limit, with the resulting calculation status recorded in the output.
 
-The release command creates Windows x86-64 ZIP and Linux x86-64 tar.gz packages and SHA-256 checksums under `dist/`. CI runs native unit tests on Windows and Ubuntu and API oracle tests on three Kubernetes versions. Actual verification records and current limits are maintained in `docs/validation.md`.
+The release command creates Windows x86-64 ZIP and Linux x86-64 tar.gz packages and SHA-256 checksums under `dist/`. CI runs native unit tests on Windows and Ubuntu, API oracle tests on three Kubernetes versions, extracted-package checks on both platforms and output fingerprint parity. The tagged release workflow publishes the archives after those jobs succeed. Actual verification records and current limits are maintained in `docs/validation.md`.
 
 ## Contributing
 

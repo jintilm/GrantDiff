@@ -1,8 +1,8 @@
 # Validation record
 
-The preview release is `0.6.0-preview`. Local tests were run on 2026-11-20. Results describe the listed environments and cases. Machine-readable evidence records authorization, generated-policy, compaction, CRD and package checks independently.
+The release candidate is `1.0.0-rc.1`. Local tests were run on 2026-11-20. Results describe the listed environments and cases. Machine-readable evidence records authorization, generated-policy, compaction, CRD, snapshot and package checks independently. Candidate support and compatibility are defined in `compatibility.md`.
 
-GitHub Actions verified source commit `ef86b5502165bf07a15f519f2409591d5d022ed2` successfully after the capture-recovery fix. All five jobs passed, covering Windows and Ubuntu unit tests and the three Kubernetes versions below. The downloaded artifacts confirmed each version's authorization, diff and compact check counts and retained the integration logs. The run and job identifiers are recorded in `verification-results.json`. [Hosted verification](https://github.com/jintilm/GrantDiff/actions/runs/44667007944)
+The preceding preview passed its five-job hosted matrix at commit `ef86b5502165bf07a15f519f2409591d5d022ed2`. Candidate verification adds archive building, two native package checks and output parity. The new run will be recorded after the candidate source is pushed. [Previous hosted verification](https://github.com/jintilm/GrantDiff/actions/runs/44667007944)
 
 ## Environments
 
@@ -11,6 +11,7 @@ GitHub Actions verified source commit `ef86b5502165bf07a15f519f2409591d5d022ed2`
 | Windows x86-64, Go 1.26.4 | CLI development, unit tests, vet, Git input tests and release builds |
 | Linux x86-64, golang:1.26-bookworm container | Native Go test execution |
 | Ubuntu 24.04 x86-64 container | Standalone Linux executable and report comparison |
+| Python 3.12 Debian container | Automated extracted Linux archive checks with networking disabled |
 | Docker Linux engine 29.8.2, kind v0.33.0 | Isolated Kubernetes API oracle environments |
 
 Dependencies were downloaded through an accessible Go proxy after the default endpoint timed out. Node images were retrieved through a mirror using the exact upstream release digests below. Test clusters are created with unique names and removed after each run.
@@ -39,6 +40,8 @@ Set `GRANTDIFF_TEST_SEED` to run one generated seed. Failure fixtures include be
 
 The CRD suite adds five authorization comparisons per version. It creates a real namespaced CRD, checks its scope and status subresource against API discovery, and performs one actual status patch with the evaluated identity. The four raw typed RBAC export checks also run on each version.
 
+Each version saves a real captured snapshot using schema 1.1, loads it through the production snapshot reader, and compares policy, identities, namespaces and resource knowledge with the captured state. The matrix records three snapshot round trips in addition to the authorization counts above.
+
 ## Local regressions
 
 Tests cover retained access, missing roles, incomplete identity groups, aggregate cycles, named-resource narrowing, subresource wildcard matching, URL prefix partitions, duplicate object keys, invalid fields, explicit namespaces, input path escapes, UTF-8 BOM, CRLF and Unicode paths. CLI tests exercise report generation, output replacement and exit codes, including incomplete wildcard reports. Query tests reject missing object names, unknown subresources and mixed URL/resource attributes. Git tests read both complete committed trees and verify that uncommitted working-tree content survives the review. List exports and multi-document input are checked for identical normalized policy objects and preserved source locations.
@@ -51,9 +54,15 @@ The ExternalDNS fixture pins upstream RBAC bytes to v0.15.1 commit `c55b1a1127df
 
 The compact ExternalDNS report has three ranges covering the same requests as the original nine, with a checked expected report in `examples/external-dns/expected-compact.md`. CLI regressions verify schema-compatible JSON, Markdown, summary mode, high-risk exit code 1 and budget-exhausted exit code 3. Compaction tests sample request coverage, excluded object names and nested URL prefixes, and check deterministic IDs, representative requests, idempotence and input immutability. Subresource partitions require the parent object name and the resource's namespace when applicable.
 
+The second pinned controller fixture uses kube-state-metrics v2.14.0 commit `e763ea2aa37e7fa507775a8506387aaa95ff17d1`. Its locally authored candidate removes Secret list/watch. The compact report records two removed ranges and 24 evidence-path changes for grants in the edited rule. Tests check upstream hashes, subject, resource, verbs, evidence and the complete expected Markdown.
+
+The RC review identified two input-boundary corrections. Snapshot schema 1.1 now verifies the complete policy/identity and catalog files before parsing the same bytes. CLI tests cover intact and legacy snapshots, modified policy, modified identities, changed catalog scope and missing hashes. Candidate deletion of every policy now requires the documented explicit empty-after flag, with a regression checking preservation of the baseline.
+
 Reproduction commands are available in README. Environment-specific tests are opt-in through the isolated integration runner. A plain `go test ./...` skips the live-cluster test when no isolated kubeconfig is supplied.
 
 ## Performance
+
+The measurements in this section were collected for 0.6.0-preview and retained as the preceding performance baseline. RC changes focus on snapshot integrity and release verification. The authorization and compaction algorithms retain the measured workload definitions.
 
 The reproducible workload has 10,000 RBAC objects in each state, 1,000 ServiceAccount identities and one modified role. It evaluates 33 request classes and reports two changes. File-mode measurements include policy and identity input loading, comparison, rendering and writing the JSON report.
 
@@ -81,7 +90,7 @@ Working-set measurements sample Windows process peak counters every 10 ms and co
 
 Run `go run ./scripts/benchmark --mode files` to time the sparse pipeline. Add `--scenario wildcard`, optionally `--compact`, for the shared-role workload. `--mode memory` measures analysis after fixture construction. File mode records loading, comparison, compaction, output, report bytes, Go heap and allocation counters. The recorded process working-set samples were collected by an external process monitor.
 
-## Preview boundaries
+## Candidate boundaries
 
 - Windows x86-64 and Linux x86-64 have executable builds and local runtime checks. ARM64 and macOS remain planned targets.
 - Ordinary user group memberships require explicit input. External identity systems and additional Kubernetes authorizers need their own data sources.
@@ -90,10 +99,12 @@ Run `go run ./scripts/benchmark --mode files` to time the sparse pipeline. Add `
 - Resource catalogs come from explicit files, discovery and v1 CRD metadata. CRD subresources are unioned across served versions. CRD extraction validates fields needed for catalog generation, and Kubernetes validates deployment configuration.
 - The public repository includes CI definitions and an integration example. Hosted verification runs execute Windows and Linux unit jobs together with the three-version Kubernetes matrix. [GitHub verification runs](https://github.com/jintilm/GrantDiff/actions/workflows/ci.yml)
 
-The preview version records these limits while the remaining v1.0 acceptance goals in the design document continue to guide development.
+The candidate records these limits in its support contract. Feedback from outside users remains pending and will inform the stable-release decision.
 
-## 0.6 milestone
+## Release candidate acceptance
 
-The implemented milestone covers optional range compaction, subresource request boundaries and measured wildcard workloads. The preceding input-scope, typed-list, CRD and incomplete-result regressions remain in the test suite. Further stable-release work can broaden real-world fixture coverage and characterize larger workloads using the reproducible harness.
+The candidate milestone covers the support contract, snapshot integrity, permission narrowing in a second pinned controller and automated native archive verification. Existing scope, typed-list, CRD, aggregation, wildcard and incomplete-result regressions run with the candidate. Workflows are checked with actionlint v1.7.7, and the Python verifier passes Ruff checks.
 
-Machine-readable local results are stored in `verification-results.json`. Linux unit tests executed with networking disabled and dependencies mounted from the local module cache. Snapshot-based candidate changes and stale baseline rejection retain their existing regressions. Package validation compared Windows and Ubuntu JSON and Markdown across retained-access, CRD and ExternalDNS scenarios in both default and compact modes. It checked JSON Schema 1.0, catalog generation, summary high-risk exit code 1, compact budget exit code 3, checksums and documentation links. Both extracted archives ran the compact ExternalDNS review and reported the expected version.
+Machine-readable local results are stored in `verification-results.json`. Linux unit tests executed with networking disabled and dependencies mounted from the local module cache. The package verifier runs from the extracted archive in a Unicode path containing spaces. It checks four scenarios in default and compact text, Markdown and JSON, golden reports, Schema 1.0, catalog generation, positive/negative/unknown queries, exit codes 0 through 4, read-only input, BOM/CRLF, checksums, documentation and notices. Windows and Linux produce 29 identical output fingerprints.
+
+Every branch verification builds one pair of archives and runs them on native Windows and Ubuntu runners before comparing fingerprints. Version tags run that same complete workflow, then publish the tested archives and checksums. Draft publication allows interrupted uploads to be retried before the release becomes visible. A candidate's public CI and downloadable artifacts provide reproducible evidence for review.

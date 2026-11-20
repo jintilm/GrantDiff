@@ -1,0 +1,53 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  verify:
+    uses: ./.github/workflows/ci.yml
+  publish:
+    needs: verify
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: release-packages
+          path: dist
+      - name: Publish verified archives
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          version="${RELEASE_TAG#v}"
+          test -f "dist/grantdiff_${version}_windows_amd64.zip"
+          test -f "dist/grantdiff_${version}_linux_amd64.tar.gz"
+          test -f "docs/releases/${RELEASE_TAG}.md"
+          cd dist
+          sha256sum --check SHA256SUMS
+          cd ..
+          flags=()
+          if [[ "$version" == *-* ]]; then
+            flags+=(--prerelease)
+          fi
+          if draft=$(gh release view "$RELEASE_TAG" --json isDraft --jq .isDraft 2>/dev/null); then
+            test "$draft" = true
+          else
+            gh release create "$RELEASE_TAG" --verify-tag --draft --title "GrantDiff $RELEASE_TAG" \
+              --notes-file "docs/releases/${RELEASE_TAG}.md" "${flags[@]}"
+          fi
+          gh release upload "$RELEASE_TAG" --clobber \
+            "dist/grantdiff_${version}_windows_amd64.zip" \
+            "dist/grantdiff_${version}_linux_amd64.tar.gz" dist/SHA256SUMS
+          gh release edit "$RELEASE_TAG" --draft=false

@@ -18,4 +18,8 @@ The integration harness retries `cluster.ErrCaptureChanged` up to five captures 
 
 Run `gofmt` on changed Go files. Preserve the documented exit codes and report schema. Describe compatibility implications and update examples when an input or output format changes.
 
+Before changing release behavior, build with `go run ./scripts/release --version 1.0.0-rc.1`, install `scripts/packagecheck/requirements.txt` in Python 3.12 or newer, and run `python scripts/packagecheck/verify.py --version 1.0.0-rc.1 --result .work/package-native.json`. CI tests the same archives on both operating systems and compares output hashes. A version tag runs the full verification workflow before publication. Release notes belong in `docs/releases/vVERSION.md`, and the tag, executable version and archive names must agree.
+
+Snapshot schema 1.1 checks complete persisted input files. Changes to snapshot handling must cover legacy schema 1.0 reading and tampered policy, identity and catalog input through normal CLI entry points. Review the candidate contract in `docs/compatibility.md` when changing documented behavior.
+
 Reports of crashes and wrong authorization conclusions should include the program version, platform, input scope and a minimal reproducer. An issue template is provided in `.github/ISSUE_TEMPLATE/bug.yml`.

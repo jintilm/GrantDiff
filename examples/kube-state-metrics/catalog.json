@@ -1,0 +1,190 @@
+{
+  "schemaVersion": "1.0",
+  "resources": [
+    {
+      "apiGroup": "",
+      "name": "configmaps",
+      "namespaced": true
+    },
+    {
+      "apiGroup": "",
+      "name": "secrets",
+      "namespaced": true
+    },
+    {
+      "apiGroup": "",
+      "name": "nodes",
+      "namespaced": false
+    },
+    {
+      "apiGroup": "",
+      "name": "pods",
+      "namespaced": true
+    },
+    {
+      "apiGroup": "",
+      "name": "services",
+      "namespaced": true
+    },
+    {
+      "apiGroup": "",
+      "name": "serviceaccounts",
+      "namespaced": true
+    },
+    {
+      "apiGroup": "",
+      "name": "resourcequotas",
+      "namespaced": true
+    },
+    {
+      "apiGroup": "",
+      "name": "replicationcontrollers",
+      "namespaced": true
+    },
+    {
+      "apiGroup": "",
+      "name": "limitranges",
+      "namespaced": true
+    },
+    {
+      "apiGroup": "",
+      "name": "persistentvolumeclaims",
+      "namespaced": true
+    },
+    {
+      "apiGroup": "",
+      "name": "persistentvolumes",
+      "namespaced": false
+    },
+    {
+      "apiGroup": "",
+      "name": "namespaces",
+      "namespaced": false
+    },
+    {
+      "apiGroup": "",
+      "name": "endpoints",
+      "namespaced": true
+    },
+    {
+      "apiGroup": "apps",
+      "name": "statefulsets",
+      "namespaced": true
+    },
+    {
+      "apiGroup": "apps",
+      "name": "daemonsets",
+      "namespaced": true
+    },
+    {
+      "apiGroup": "apps",
+      "name": "deployments",
+      "namespaced": true
+    },
+    {
+      "apiGroup": "apps",
+      "name": "replicasets",
+      "namespaced": true
+    },
+    {
+      "apiGroup": "batch",
+      "name": "cronjobs",
+      "namespaced": true
+    },
+    {
+      "apiGroup": "batch",
+      "name": "jobs",
+      "namespaced": true
+    },
+    {
+      "apiGroup": "autoscaling",
+      "name": "horizontalpodautoscalers",
+      "namespaced": true
+    },
+    {
+      "apiGroup": "authentication.k8s.io",
+      "name": "tokenreviews",
+      "namespaced": false
+    },
+    {
+      "apiGroup": "authorization.k8s.io",
+      "name": "subjectaccessreviews",
+      "namespaced": false
+    },
+    {
+      "apiGroup": "policy",
+      "name": "poddisruptionbudgets",
+      "namespaced": true
+    },
+    {
+      "apiGroup": "certificates.k8s.io",
+      "name": "certificatesigningrequests",
+      "namespaced": false
+    },
+    {
+      "apiGroup": "discovery.k8s.io",
+      "name": "endpointslices",
+      "namespaced": true
+    },
+    {
+      "apiGroup": "storage.k8s.io",
+      "name": "storageclasses",
+      "namespaced": false
+    },
+    {
+      "apiGroup": "storage.k8s.io",
+      "name": "volumeattachments",
+      "namespaced": false
+    },
+    {
+      "apiGroup": "admissionregistration.k8s.io",
+      "name": "mutatingwebhookconfigurations",
+      "namespaced": false
+    },
+    {
+      "apiGroup": "admissionregistration.k8s.io",
+      "name": "validatingwebhookconfigurations",
+      "namespaced": false
+    },
+    {
+      "apiGroup": "networking.k8s.io",
+      "name": "networkpolicies",
+      "namespaced": true
+    },
+    {
+      "apiGroup": "networking.k8s.io",
+      "name": "ingressclasses",
+      "namespaced": false
+    },
+    {
+      "apiGroup": "networking.k8s.io",
+      "name": "ingresses",
+      "namespaced": true
+    },
+    {
+      "apiGroup": "coordination.k8s.io",
+      "name": "leases",
+      "namespaced": true
+    },
+    {
+      "apiGroup": "rbac.authorization.k8s.io",
+      "name": "clusterrolebindings",
+      "namespaced": false
+    },
+    {
+      "apiGroup": "rbac.authorization.k8s.io",
+      "name": "clusterroles",
+      "namespaced": false
+    },
+    {
+      "apiGroup": "rbac.authorization.k8s.io",
+      "name": "rolebindings",
+      "namespaced": true
+    },
+    {
+      "apiGroup": "rbac.authorization.k8s.io",
+      "name": "roles",
+      "namespaced": true
+    }
+  ]
+}

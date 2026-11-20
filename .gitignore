@@ -6,3 +6,4 @@
 /grantdiff
 /grantdiff.exe
 *.test
+__pycache__/

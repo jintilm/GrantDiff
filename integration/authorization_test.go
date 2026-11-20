@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"os"
+	"path/filepath"
 	"slices"
 	"strings"
 	"testing"
@@ -102,11 +103,22 @@ func TestAuthorizationAgainstKubernetes(t *testing.T) {
 		t.Fatal(err)
 	}
 	waitAggregate(t, ctx, client, aggregate.Name, "get")
-	before, _, _, err := captureStable(t, ctx, client)
+	before, capturedMetadata, capturedData, err := captureStable(t, ctx, client)
 	if err != nil {
 		t.Fatal(err)
 	}
 	checkTypedExports(t, ctx, client, before, namespace, prefix)
+	snapshotPath := filepath.Join(t.TempDir(), "snapshot")
+	if err := cluster.Save(snapshotPath, before, capturedMetadata, capturedData); err != nil {
+		t.Fatal(err)
+	}
+	reloaded, err := cluster.Load(snapshotPath, input.Options{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if reloaded.Digest() != before.Digest() || model.Hash(reloaded.Catalog) != model.Hash(before.Catalog) || model.Hash(reloaded.Identities) != model.Hash(before.Identities) || !slices.Equal(reloaded.Namespaces, before.Namespaces) {
+		t.Fatal("persisted snapshot changed policy, identities or catalog")
+	}
 	requests := requests(namespace)
 	checks := checkRequests(t, ctx, client, before, identities, requests)
 	// Named list authorization must match a real HTTP request with a selector.
@@ -163,9 +175,9 @@ func TestAuthorizationAgainstKubernetes(t *testing.T) {
 		t.Fatalf("missing semantic changes: retained=%v added=%v removed=%v", retained, added, removed)
 	}
 	checks += checkWildcardCatalog(t, ctx, client, after, stranger, namespace, prefix)
-	t.Logf("Kubernetes %s: %d SubjectAccessReview comparisons, 2 actual list requests, 4 typed RBAC exports, retained + aggregate + wildcard scope verified; seed 20261119/7", metadata.KubernetesVersion, checks)
+	t.Logf("Kubernetes %s: %d SubjectAccessReview comparisons, 2 actual list requests, 4 typed RBAC exports, 1 snapshot round trip, retained + aggregate + wildcard scope verified; seed 20261119/7", metadata.KubernetesVersion, checks)
 	if path := os.Getenv("GRANTDIFF_TEST_RESULT"); path != "" {
-		result := map[string]any{"kubernetesVersion": metadata.KubernetesVersion, "authorizationComparisons": checks, "actualRequests": 2, "typedRBACExports": 4, "seed": "20261119/7", "result": "passed", "completedAt": time.Now().UTC()}
+		result := map[string]any{"kubernetesVersion": metadata.KubernetesVersion, "authorizationComparisons": checks, "actualRequests": 2, "typedRBACExports": 4, "snapshotRoundTrips": 1, "seed": "20261119/7", "result": "passed", "completedAt": time.Now().UTC()}
 		data, err := json.MarshalIndent(result, "", "  ")
 		if err != nil {
 			t.Fatal(err)
