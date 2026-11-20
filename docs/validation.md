@@ -2,7 +2,7 @@
 
 The release candidate is `1.0.0-rc.1`. Local tests were run on 2026-11-20. Results describe the listed environments and cases. Machine-readable evidence records authorization, generated-policy, compaction, CRD, snapshot and package checks independently. Candidate support and compatibility are defined in `compatibility.md`.
 
-The preceding preview passed its five-job hosted matrix at commit `ef86b5502165bf07a15f519f2409591d5d022ed2`. Candidate verification adds archive building, two native package checks and output parity. The new run will be recorded after the candidate source is pushed. [Previous hosted verification](https://github.com/jintilm/GrantDiff/actions/runs/44667007944)
+GitHub Actions verified candidate source commit `cdc35b545df6fb91b3150fcc039857dadaac250f` successfully. All nine jobs passed, covering Windows/Ubuntu unit tests, three Kubernetes versions, archive building, two native extracted-package checks and output parity. Downloaded artifacts confirmed the per-version counts below and 29 matching Windows/Linux output fingerprints. Run and job identifiers are recorded in `verification-results.json`. [Candidate verification](https://github.com/jintilm/GrantDiff/actions/runs/44673638666)
 
 ## Environments
 

@@ -289,7 +289,135 @@
       }
     ]
   },
-  "githubHostedCI": "pending for 1.0.0-rc.1",
+  "githubHostedCI": {
+    "sourceCommit": "cdc35b545df6fb91b3150fcc039857dadaac250f",
+    "runId": 44673638666,
+    "url": "https://github.com/jintilm/GrantDiff/actions/runs/44673638666",
+    "conclusion": "success",
+    "release": "1.0.0-rc.1",
+    "jobs": [
+      {
+        "id": 136080197757,
+        "name": "packages",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44673638666/job/136080197757"
+      },
+      {
+        "id": 136080197857,
+        "name": "unit (windows-latest)",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44673638666/job/136080197857"
+      },
+      {
+        "id": 136080197865,
+        "name": "kubernetes (v1.37.0, kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4...",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44673638666/job/136080197865"
+      },
+      {
+        "id": 136080197917,
+        "name": "kubernetes (v1.36.4, kindest/node:v1.36.4@sha256:099e049362a1526b2db71494e1947aae99bd16290d7c895f...",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44673638666/job/136080197917"
+      },
+      {
+        "id": 136080198038,
+        "name": "unit (ubuntu-24.04)",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44673638666/job/136080198038"
+      },
+      {
+        "id": 136080210994,
+        "name": "kubernetes (v1.35.8, kindest/node:v1.35.8@sha256:07b2536e30b803ed61d1677a79df6115f798ce64c80f9e22...",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44673638666/job/136080210994"
+      },
+      {
+        "id": 136080801582,
+        "name": "package-test (windows-latest, windows)",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44673638666/job/136080801582"
+      },
+      {
+        "id": 136080801618,
+        "name": "package-test (ubuntu-24.04, linux)",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44673638666/job/136080801618"
+      },
+      {
+        "id": 136080986500,
+        "name": "package-parity",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44673638666/job/136080986500"
+      }
+    ],
+    "artifacts": [
+      {
+        "name": "package-check-linux",
+        "id": 14600959324,
+        "sizeInBytes": 1824
+      },
+      {
+        "name": "package-check-windows",
+        "id": 14601850016,
+        "sizeInBytes": 1840
+      },
+      {
+        "name": "release-packages",
+        "id": 14601300870,
+        "sizeInBytes": 19350622
+      },
+      {
+        "name": "verification-v1.35.8",
+        "id": 14601146550,
+        "sizeInBytes": 2230
+      },
+      {
+        "name": "verification-v1.36.4",
+        "id": 14600744490,
+        "sizeInBytes": 2183
+      },
+      {
+        "name": "verification-v1.37.0",
+        "id": 14600754568,
+        "sizeInBytes": 2234
+      }
+    ],
+    "verifiedResults": [
+      {
+        "kubernetesVersion": "v1.35.8",
+        "authorizationComparisons": 3763,
+        "diffChecks": 1248,
+        "compactChecks": 1248,
+        "actualRequests": 3,
+        "snapshotRoundTrips": 1
+      },
+      {
+        "kubernetesVersion": "v1.36.4",
+        "authorizationComparisons": 3763,
+        "diffChecks": 1248,
+        "compactChecks": 1248,
+        "actualRequests": 3,
+        "snapshotRoundTrips": 1
+      },
+      {
+        "kubernetesVersion": "v1.37.0",
+        "authorizationComparisons": 3763,
+        "diffChecks": 1248,
+        "compactChecks": 1248,
+        "actualRequests": 3,
+        "snapshotRoundTrips": 1
+      }
+    ],
+    "packageParity": {
+      "outputFingerprints": 29,
+      "result": "passed",
+      "platforms": [
+        "windows/amd64",
+        "linux/amd64"
+      ]
+    }
+  },
   "packagesVerificationRelease": "1.0.0-rc.1",
   "wildcardBenchmarks": [
     {
@@ -444,6 +572,8 @@
     "workflowLint": "actionlint 1.7.7 passed",
     "pythonChecks": "Ruff passed",
     "externalUserFeedback": "pending",
-    "tag": "v1.0.0-rc.1"
+    "tag": "v1.0.0-rc.1",
+    "windowsShortPaths": "reproduced, fixed and verified in native CI",
+    "packageFailureLogs": "retained on all outcomes"
   }
 }
