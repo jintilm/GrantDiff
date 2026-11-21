@@ -1,6 +1,6 @@
 # Candidate support and compatibility
 
-GrantDiff `1.0.0-rc.1` is a release candidate for the following v1.0 scope. Findings from candidate testing can require corrections before the stable release. The acceptance record is maintained in `validation.md`.
+GrantDiff `1.1.0-preview.1` extends the v1.0 release candidate with an offline interactive viewer. The following contract describes the CLI and authorization scope. The viewer remains a preview while browser feedback is collected. The acceptance record is maintained in `validation.md`.
 
 ## Runtime and inputs
 
@@ -14,6 +14,7 @@ GrantDiff `1.0.0-rc.1` is a release candidate for the following v1.0 scope. Find
 | Identities | User, Group, ServiceAccount and explicit user group memberships |
 | Resource knowledge | Explicit catalogs, API discovery and v1 CRD metadata |
 | Outputs | Text, Markdown and diff JSON Schema 1.0, with optional compact ranges |
+| Viewer | Offline HTML, schema 1.0 diff JSON, English/Chinese labels, current Chromium browser checks |
 
 Offline commands require the executable and input files. Git comparison requires Git. Snapshot capture requires the named Kubernetes context, a trusted kubeconfig and access to list the needed resources. Integration development requires Docker and kind. Packaging verification requires Python 3.12 or newer and the pinned packages in `scripts/packagecheck/requirements.txt`.
 
@@ -44,6 +45,8 @@ Diff JSON follows `report.schema.json`. Consumers should use `range` as the comp
 | 4 | Snapshot connection, collection or persistence failed |
 
 Incomplete analysis takes precedence over risk exit code 1. A query with `not_granted` returns code 0 and records the authorization result in its output. `--summary` and `--compact` use the same failure rules. An empty baseline requires `--allow-empty-before`. Removing all policies requires `--allow-empty-after`, including snapshot candidates.
+
+`view --output FILE.html` returns 0 when the offline page is created, including when an embedded report describes an incomplete analysis. It returns 2 for argument, report-envelope or file errors. The browser validates the full imported schema and range structure, displays the report's completeness independently and filters over full ranges. Viewer inputs are limited to 128 MiB, with 40 changes per page. Generated HTML embeds the supplied report details. Current Chromium is exercised on supported operating systems, with desktop and mobile-sized layouts. [Viewer contract](viewer.md)
 
 Catalogs, identities and candidate operations retain schema 1.0. New persisted snapshots use schema 1.1 and SHA-256 digests for the complete `rbac.json` and `catalog.json` files. This detects changes to RBAC, captured identities, namespaces and resource knowledge. Metadata retains the RBAC object digest used by schema 1.0 candidate operations. Snapshot checksums provide integrity checks relative to their metadata, and the directory must come from a trusted source.
 

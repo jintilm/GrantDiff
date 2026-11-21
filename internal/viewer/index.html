@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="{{CSP}}">
+  <title>GrantDiff · Permission review</title>
+  <style>{{CSS}}</style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">G</span>GrantDiff<span class="brand-description" data-t="review">Permission review</span></a>
+    <div class="top-actions">
+      <span class="local-indicator" data-t="local">Local report</span>
+      <button id="language" class="quiet" type="button">中文</button>
+      <button id="open-report" class="primary" type="button" data-t="open">Open JSON report</button>
+      <input id="file" type="file" accept=".json,application/json" hidden>
+    </div>
+  </header>
+  <div id="error" class="error-message" role="alert" hidden></div>
+  <main id="main">
+    <section id="welcome" class="welcome">
+      <div class="welcome-mark" aria-hidden="true">G</div>
+      <h1 data-t="welcomeTitle">Follow every permission change.</h1>
+      <p data-t="welcomeText">Open a GrantDiff JSON report to explore affected identities, request ranges and authorization paths.</p>
+      <button id="welcome-open" class="primary" type="button" data-t="open">Open JSON report</button>
+      <p class="muted" data-t="privacy">Files are read in this browser. The viewer works offline.</p>
+      <code>grantdiff diff --before before/ --after after/ --format json --output report.json</code>
+    </section>
+    <section id="workspace" hidden>
+      <div class="report-heading">
+        <div><p class="eyebrow" data-t="reportLabel">RBAC CHANGE REPORT</p><h1 id="report-title"></h1><p id="report-meta" class="muted"></p></div>
+        <span id="calculation" class="status"></span>
+      </div>
+      <section id="incomplete" class="notice" hidden><strong data-t="incompleteTitle">This review is incomplete</strong><p id="incomplete-text"></p></section>
+      <details id="scope-panel" class="scope-panel"><summary data-t="scopeTitle">Input scope and diagnostics</summary><div id="scope-content"></div></details>
+      <div class="review-layout">
+        <aside class="filters" aria-label="Filters">
+          <h2 data-t="changes">Changes</h2>
+          <nav id="type-filters" class="type-filters" aria-label="Change types"></nav>
+          <div class="filter-divider"></div>
+          <label for="identity" data-t="identity">Identity or group</label>
+          <select id="identity"></select>
+          <label for="risk" data-t="risk">Risk</label>
+          <select id="risk"><option value="all" data-t="allRisks">All risks</option><option value="high" data-t="highOnly">High-risk ranges</option></select>
+          <label for="namespace" data-t="namespaceFilter">Namespace in range</label>
+          <input id="namespace" type="search" autocomplete="off" data-placeholder="namespacePlaceholder">
+          <label class="check-label"><input id="cluster-scope" type="checkbox"><span data-t="clusterScope">Empty namespace requests</span></label>
+          <button id="reset" class="reset" type="button" data-t="reset">Reset filters</button>
+          <p class="filter-note" data-t="rangeNote">Counts describe request ranges. Each range can cover many objects.</p>
+        </aside>
+        <section class="change-list" aria-label="Permission changes">
+          <div class="list-toolbar"><label for="search" class="sr-only" data-t="searchLabel">Search changes</label><input id="search" type="search" autocomplete="off" data-placeholder="searchPlaceholder"><p id="match-count" aria-live="polite"></p></div>
+          <div id="rows" class="rows"></div>
+          <div class="pagination"><button id="previous" class="quiet" type="button" data-t="previous">Previous</button><span id="page-count"></span><button id="next" class="quiet" type="button" data-t="next">Next</button></div>
+        </section>
+        <section id="detail" class="detail" aria-label="Selected change"></section>
+      </div>
+    </section>
+  </main>
+  <footer><span>GrantDiff</span><span data-t="footer">Kubernetes RBAC · Evidence for the supplied inputs</span></footer>
+  <noscript>This offline viewer needs JavaScript enabled to read and filter reports.</noscript>
+  <script type="application/json" id="initial-report">{{REPORT}}</script>
+  <script type="application/json" id="report-schema">{{SCHEMA}}</script>
+  <script>{{JS}}</script>
+</body>
+</html>

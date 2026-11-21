@@ -16,7 +16,7 @@ ServiceAccount finance/report-bot
 
 [中文说明](README.zh-CN.md) · [Design](docs/design.zh-CN.md) · [Compatibility](docs/compatibility.md) · [Validation](docs/validation.md)
 
-Version `1.0.0-rc.1` is the first release candidate. It defines the candidate support contract, verifies complete snapshot files and automates native archive checks. Pinned ExternalDNS and kube-state-metrics examples demonstrate added and removed permissions with reviewed expected reports. [Candidate notes](docs/releases/v1.0.0-rc.1.md)
+Version `1.1.0-preview.1` adds an offline interactive report viewer with English/Chinese labels, filters, before/after decisions and expandable authorization paths. Pinned ExternalDNS and kube-state-metrics examples demonstrate added and removed permissions with reviewed expected reports. [Viewer guide](docs/viewer.md) · [Preview notes](docs/releases/v1.1.0-preview.1.md)
 
 ## Build and try
 
@@ -47,11 +47,15 @@ grantdiff catalog --input examples/crd/after --output widgets-catalog.json
 grantdiff diff --before examples/crd/before --after examples/crd/after --summary --format markdown
 grantdiff diff --before examples/external-dns/before --after examples/external-dns/after --catalog examples/external-dns/catalog.yaml --compact --format markdown
 grantdiff diff --before examples/kube-state-metrics/before --after examples/kube-state-metrics/after --catalog examples/kube-state-metrics/catalog.json --compact --fail-on removed
+grantdiff view --input report.json --output review.html
+grantdiff view --output viewer.html
 ```
 
 Run `grantdiff COMMAND --help` for the complete flags. Choose `text`, `markdown`, or `json`. A comparison budget defaults to one million request classes and is configurable with `--max-classes`. Inputs are limited to 10,000 files, 64 MiB total and 64 YAML nesting levels. Expand YAML aliases before review. Empty before or after states require `--allow-empty-before` or `--allow-empty-after`.
 
 Git mode reads both complete committed trees. Unchanged bindings participate in authorization, and local working-tree edits are preserved. Review already-rendered manifests from Helm or Kustomize. Namespace defaults are explicit through `--default-namespace`.
+
+Open the packaged `viewer.html` or generated HTML in a browser to filter an existing diff report and inspect its full request ranges and evidence. The page works offline and offers a local JSON file picker. Embedded HTML reports contain all supplied report details. The viewer accepts schema 1.0 diff JSON up to 128 MiB and shows incomplete input and calculation diagnostics. [Viewer usage and boundaries](docs/viewer.md)
 
 ## Interpreting results
 
@@ -115,9 +119,9 @@ go vet ./...
 go run ./scripts/integration --kind kind --result .work/verification.json
 go run ./scripts/benchmark --mode files
 go run ./scripts/benchmark --mode files --scenario wildcard --compact
-go run ./scripts/release --version 1.0.0-rc.1
+go run ./scripts/release --version 1.1.0-preview.1
 python -m pip install -r scripts/packagecheck/requirements.txt
-python scripts/packagecheck/verify.py --version 1.0.0-rc.1 --result .work/package-native.json
+python scripts/packagecheck/verify.py --version 1.1.0-preview.1 --result .work/package-native.json
 ```
 
 The integration runner creates a uniquely named kind cluster, runs real authorization comparisons, and deletes its own cluster. A cached or mirrored image with the pinned digest can be supplied with `--image`. It uses kind v0.33.0 and defaults to Kubernetes v1.37.0.
@@ -127,6 +131,8 @@ Generated scenarios use eight fixed PCG seeds to vary roles, bindings and group 
 The benchmark offers `sparse` and `wildcard` scenarios. File mode records loading, comparison, compaction, output time and report size separately. `--max-classes` exercises the budget limit, with the resulting calculation status recorded in the output.
 
 The release command creates Windows x86-64 ZIP and Linux x86-64 tar.gz packages and SHA-256 checksums under `dist/`. CI runs native unit tests on Windows and Ubuntu, API oracle tests on three Kubernetes versions, extracted-package checks on both platforms and output fingerprint parity. The tagged release workflow publishes the archives after those jobs succeed. Actual verification records and current limits are maintained in `docs/validation.md`.
+
+Browser checks use the packaged executable. Install `scripts/packagecheck/browser-requirements.txt`, run `python -m playwright install --with-deps chromium`, and add `--browser` to the package verification command. CI checks the offline interactions on both native platforms and saves desktop/mobile screenshots alongside the result files.
 
 ## Contributing
 

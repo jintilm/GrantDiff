@@ -18,10 +18,12 @@ import (
 	"regexp"
 	"slices"
 	"strings"
+
+	"github.com/jintilm/GrantDiff/internal/viewer"
 )
 
 func main() {
-	version := flag.String("version", "1.0.0-rc.1", "release version")
+	version := flag.String("version", "1.1.0-preview.1", "release version")
 	flag.Parse()
 	if err := run(*version); err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -37,6 +39,13 @@ func run(version string) error {
 		return err
 	}
 	if err := dependencyLicenses(); err != nil {
+		return err
+	}
+	page, err := viewer.Render(nil)
+	if err != nil {
+		return err
+	}
+	if err := os.WriteFile("dist/viewer.html", page, 0644); err != nil {
 		return err
 	}
 	checksums := strings.Builder{}
@@ -56,13 +65,13 @@ func run(version string) error {
 		if err := cmd.Run(); err != nil {
 			return err
 		}
-		files := []struct{ name, path string }{{name, binary}, {"README.md", "README.md"}, {"README.zh-CN.md", "README.zh-CN.md"}, {"CONTRIBUTING.md", "CONTRIBUTING.md"}, {"CHANGELOG.md", "CHANGELOG.md"}, {"LICENSE", "LICENSE"}, {"NOTICE", "NOTICE"}, {"THIRD_PARTY_LICENSES.txt", "dist/THIRD_PARTY_LICENSES.txt"}}
+		files := []struct{ name, path string }{{name, binary}, {"viewer.html", "dist/viewer.html"}, {"README.md", "README.md"}, {"README.zh-CN.md", "README.zh-CN.md"}, {"CONTRIBUTING.md", "CONTRIBUTING.md"}, {"CHANGELOG.md", "CHANGELOG.md"}, {"LICENSE", "LICENSE"}, {"NOTICE", "NOTICE"}, {"THIRD_PARTY_LICENSES.txt", "dist/THIRD_PARTY_LICENSES.txt"}}
 		for _, root := range []string{"examples", "docs"} {
 			if err := filepath.WalkDir(root, func(path string, entry fs.DirEntry, err error) error {
 				if err != nil {
 					return err
 				}
-				if !entry.IsDir() {
+				if !entry.IsDir() && filepath.Ext(path) != ".go" {
 					files = append(files, struct{ name, path string }{filepath.ToSlash(path), path})
 				}
 				return nil

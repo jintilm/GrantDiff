@@ -2,9 +2,9 @@
 
 在 Windows 和 Linux 上评审 Kubernetes RBAC 变更，查看权限增加、权限撤销和权限仍然保留的具体原因。
 
-项目提供目录比较、Git 提交比较、单项权限查询、CRD 资源目录生成、集群快照和基于快照的候选变更。输出支持文本、Markdown 和 JSON。当前版本为首个候选稳定版 `1.0.0-rc.1`。
+项目提供目录比较、Git 提交比较、单项权限查询、CRD 资源目录生成、集群快照和基于快照的候选变更。输出支持文本、Markdown 和 JSON。当前版本为交互查看器预览版 `1.1.0-preview.1`。
 
-RC 阶段固定候选支持范围，完善快照完整性校验、真实项目案例与自动发布验证。支持约定和版本边界已写入兼容性文档。[兼容性约定](docs/compatibility.md) · [候选版说明](docs/releases/v1.0.0-rc.1.md)
+本版在候选版的 CLI 基础上增加离线交互报告查看器，提供中英文切换、范围筛选、前后结论和授权路径展开。支持约定和版本边界已写入兼容性文档。[兼容性约定](docs/compatibility.md) · [查看器说明](docs/viewer.md)
 
 ## 运行演示
 
@@ -26,6 +26,15 @@ go run ./cmd/grantdiff diff --before examples/retained/before --after examples/r
 ```
 
 演示移除了 `report-bot` 的直接绑定。账号仍通过 `system:serviceaccounts:finance` 组获得读取权限，报告会显示 `retained_via_other_path`，并列出剩余路径。
+
+生成 JSON 后可以直接制作离线交互报告。
+
+```text
+go run ./cmd/grantdiff diff --before examples/retained/before --after examples/retained/after --identities examples/retained/identities.yaml --catalog examples/retained/catalog.yaml --format json --output report.json
+go run ./cmd/grantdiff view --input report.json --output review.html
+```
+
+用浏览器打开 `review.html`，可以按身份、变更类型、风险和命名空间筛选，再查看前后授权路径及文件位置。安装包内附带可以直接打开的 `viewer.html`，也可用 `view --output viewer.html` 生成空查看器。页面支持离线运行，嵌入报告的 HTML 包含原报告的全部详情。JSON 上限为 128 MiB，报告不完整时会持续显示提示，默认语言跟随浏览器并可手动切换。
 
 Windows 构建命令如下。
 
@@ -89,14 +98,16 @@ go vet ./...
 go run ./scripts/integration --kind kind --result .work/verification.json
 go run ./scripts/benchmark --mode files
 go run ./scripts/benchmark --mode files --scenario wildcard --compact
-go run ./scripts/release --version 1.0.0-rc.1
+go run ./scripts/release --version 1.1.0-preview.1
 python -m pip install -r scripts/packagecheck/requirements.txt
-python scripts/packagecheck/verify.py --version 1.0.0-rc.1 --result .work/package-native.json
+python scripts/packagecheck/verify.py --version 1.1.0-preview.1 --result .work/package-native.json
 ```
 
 集成测试程序创建自己的 kind 集群，完成授权对照后清理该集群。可以用 `--image` 选择固定摘要的节点镜像。发布程序在 `dist/` 下生成 Windows 和 Linux 软件包及校验和。
 
 CI 会构建同一组安装包，在 Windows 和 Ubuntu 分别解压运行，再比较输出指纹。自动检查覆盖四组案例、JSON Schema、退出码、中文和空格路径、BOM/CRLF、只读输入及文档链接。带版本标签的发布流程在这些检查通过后上传安装包。
+
+浏览器交互检查使用解压后的可执行文件。安装 `scripts/packagecheck/browser-requirements.txt` 并执行 `python -m playwright install --with-deps chromium` 后，可在安装包验证命令中加入 `--browser`。CI 在两个平台验证离线交互，并保留桌面和窄屏截图。
 
 组合测试通过八个固定种子生成角色、绑定和组成员关系，分别核对权限判定、差异覆盖，以及合并前后每个采样请求的变化类型、风险和证据。设置环境变量 `GRANTDIFF_TEST_SEED` 可重跑一个种子。失败时，完整清单、身份、请求和报告保存到 `.work/failures/`，CI 会上传这些文件。
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.0-preview.1 — 2026-11-21
+
+- Add `view` to generate a self-contained offline HTML viewer, optionally embedding a schema 1.0 diff report.
+- Support English/Chinese labels, identity/type/risk/text filters, namespace-range matching and pagination.
+- Display complete request ranges, before/after decisions, source locations and expandable aggregation/authorization evidence.
+- Validate imported reports, show incomplete scope and diagnostics, and render report strings as literal text under an offline content policy.
+- Add CLI/HTML regressions and packaged Chromium interaction tests, including a 5,000-range report and mobile layout.
+- Include generated HTML in Windows/Linux package output parity checks.
+
 ## 1.0.0-rc.1 — 2026-11-20
 
 - Define the candidate runtime, authorization, CLI and format compatibility contract.

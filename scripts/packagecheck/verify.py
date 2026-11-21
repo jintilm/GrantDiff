@@ -40,7 +40,7 @@ def extract(archive_path, destination):
             archive.extractall(destination, filter="data")
 
 
-def check_package(dist, version, result_path):
+def check_package(dist, version, result_path, browser_checks=False):
     system = platform.system().lower()
     require(system in ("windows", "linux"), "package checks support Windows and Linux")
     expected_archives = {
@@ -63,6 +63,7 @@ def check_package(dist, version, result_path):
     extension = ".zip" if system == "windows" else ".tar.gz"
     archive_path = dist / f"grantdiff_{version}_{system}_amd64{extension}"
     hashes = {}
+    browser_result = None
     with tempfile.TemporaryDirectory(prefix="grantdiff package ") as temporary:
         # Exercise Unicode and spaces in the executable and input paths.
         root = Path(temporary) / "发布 验证"
@@ -86,7 +87,7 @@ def check_package(dist, version, result_path):
         require(
             run(["version"]).decode().strip() == version, "package version mismatch"
         )
-        for command in ("diff", "query", "catalog", "snapshot"):
+        for command in ("diff", "query", "view", "catalog", "snapshot"):
             run([command, "--help"])
         scenarios = {
             "retained": [
@@ -124,6 +125,26 @@ def check_package(dist, version, result_path):
                             report["scope"]["calculation"] == "complete",
                             f"incomplete {key}",
                         )
+                        if compact:
+                            (root / "viewer-input.json").write_bytes(output)
+                            run(
+                                [
+                                    "view",
+                                    "--input",
+                                    "viewer-input.json",
+                                    "--output",
+                                    "viewer-output.html",
+                                ]
+                            )
+                            html = (root / "viewer-output.html").read_bytes()
+                            require(
+                                b'id="initial-report"' in html
+                                and b"Content-Security-Policy" in html,
+                                "viewer assets missing from executable",
+                            )
+                            hashes[f"{scenario}/viewer"] = hashlib.sha256(
+                                html
+                            ).hexdigest()
                         if scenario == "external-dns":
                             require(
                                 len(report["changes"]) == (3 if compact else 9),
@@ -185,6 +206,15 @@ def check_package(dist, version, result_path):
                 ),
                 "missing budget diagnostic",
             )
+        run(["view", "--output", "viewer-empty.html"])
+        require(
+            (root / "viewer.html").read_bytes()
+            == (root / "viewer-empty.html").read_bytes(),
+            "packaged viewer differs from the executable",
+        )
+        hashes["viewer-empty"] = hashlib.sha256(
+            (root / "viewer-empty.html").read_bytes()
+        ).hexdigest()
         catalog = run(["catalog", "--input", "examples/crd/after"])
         require(
             json.loads(catalog)["resources"][0]["name"] == "widgets",
@@ -284,6 +314,13 @@ def check_package(dist, version, result_path):
             require(
                 (root / name).stat().st_size > 0, f"missing package document {name}"
             )
+        if browser_checks:
+            from viewer_browser import verify
+
+            result_path.parent.mkdir(parents=True, exist_ok=True)
+            browser_result = verify(
+                executable, root, result_path.with_name(f"viewer-{system}.png")
+            )
     result = dict(
         version=version,
         platform=system,
@@ -307,8 +344,11 @@ def check_package(dist, version, result_path):
             "read-only input",
             "documentation links",
             "license notices",
+            "offline HTML generation",
         ],
     )
+    if browser_result is not None:
+        result["browser"] = browser_result
     result_path.parent.mkdir(parents=True, exist_ok=True)
     result_path.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     print(f"{system}/amd64 package verified with {len(hashes)} output fingerprints")
@@ -347,10 +387,17 @@ if __name__ == "__main__":
     parser.add_argument("--version")
     parser.add_argument("--result", type=Path)
     parser.add_argument("--compare", type=Path)
+    parser.add_argument(
+        "--browser",
+        action="store_true",
+        help="run offline Chromium interactions on the extracted executable",
+    )
     args = parser.parse_args()
     if args.compare:
         compare_results(args.compare)
     else:
         if not args.version or not args.result:
             parser.error("--version and --result are required")
-        check_package(args.dist.resolve(), args.version, args.result.resolve())
+        check_package(
+            args.dist.resolve(), args.version, args.result.resolve(), args.browser
+        )

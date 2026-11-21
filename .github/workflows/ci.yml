@@ -68,10 +68,11 @@ jobs:
         with:
           name: release-packages
           path: dist
-      - run: python -m pip install -r scripts/packagecheck/requirements.txt
+      - run: python -m pip install -r scripts/packagecheck/requirements.txt -r scripts/packagecheck/browser-requirements.txt
+      - run: python -m playwright install --with-deps chromium
       - run: |
           mkdir -p .work
-          python scripts/packagecheck/verify.py --version "$RELEASE_VERSION" --result ".work/package-$PACKAGE_PLATFORM.json" 2>&1 | tee ".work/package-$PACKAGE_PLATFORM.log"
+          python scripts/packagecheck/verify.py --browser --version "$RELEASE_VERSION" --result ".work/package-$PACKAGE_PLATFORM.json" 2>&1 | tee ".work/package-$PACKAGE_PLATFORM.log"
         shell: bash
         env:
           RELEASE_VERSION: ${{ needs.packages.outputs.version }}
@@ -84,6 +85,7 @@ jobs:
           path: |
             .work/package-*.json
             .work/package-*.log
+            .work/viewer-*.png
   package-parity:
     needs: package-test
     runs-on: ubuntu-24.04

@@ -1,8 +1,8 @@
 {
   "project": "GrantDiff",
   "module": "github.com/jintilm/GrantDiff",
-  "release": "1.0.0-rc.1",
-  "verificationDate": "2026-11-20",
+  "release": "1.1.0-preview.1",
+  "verificationDate": "2026-11-21",
   "unitTestPlatforms": [
     "windows/amd64",
     "linux/amd64"
@@ -208,88 +208,6 @@
     "compactCIExitCodes": "passed"
   },
   "previousHostedVerification": {
-    "sourceCommit": "ef86b5502165bf07a15f519f2409591d5d022ed2",
-    "runId": 44667007944,
-    "url": "https://github.com/jintilm/GrantDiff/actions/runs/44667007944",
-    "conclusion": "success",
-    "release": "0.6.0-preview",
-    "jobs": [
-      {
-        "id": 136058630728,
-        "name": "unit (windows-latest)",
-        "conclusion": "success",
-        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44667007944/job/136058630728"
-      },
-      {
-        "id": 136058630980,
-        "name": "kubernetes (v1.37.0, kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4...",
-        "conclusion": "success",
-        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44667007944/job/136058630980"
-      },
-      {
-        "id": 136058631193,
-        "name": "unit (ubuntu-24.04)",
-        "conclusion": "success",
-        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44667007944/job/136058631193"
-      },
-      {
-        "id": 136058631832,
-        "name": "kubernetes (v1.36.4, kindest/node:v1.36.4@sha256:099e049362a1526b2db71494e1947aae99bd16290d7c895f...",
-        "conclusion": "success",
-        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44667007944/job/136058631832"
-      },
-      {
-        "id": 136058631902,
-        "name": "kubernetes (v1.35.8, kindest/node:v1.35.8@sha256:07b2536e30b803ed61d1677a79df6115f798ce64c80f9e22...",
-        "conclusion": "success",
-        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44667007944/job/136058631902"
-      }
-    ],
-    "artifacts": [
-      {
-        "name": "verification-v1.35.8",
-        "id": 14598181684,
-        "sizeInBytes": 2200
-      },
-      {
-        "name": "verification-v1.36.4",
-        "id": 14598695570,
-        "sizeInBytes": 2204
-      },
-      {
-        "name": "verification-v1.37.0",
-        "id": 14598460950,
-        "sizeInBytes": 2201
-      }
-    ],
-    "verifiedResults": [
-      {
-        "kubernetesVersion": "v1.35.8",
-        "authorizationComparisons": 3763,
-        "diffChecks": 1248,
-        "compactChecks": 1248,
-        "actualRequests": 3,
-        "integrationLog": "retained"
-      },
-      {
-        "kubernetesVersion": "v1.36.4",
-        "authorizationComparisons": 3763,
-        "diffChecks": 1248,
-        "compactChecks": 1248,
-        "actualRequests": 3,
-        "integrationLog": "retained"
-      },
-      {
-        "kubernetesVersion": "v1.37.0",
-        "authorizationComparisons": 3763,
-        "diffChecks": 1248,
-        "compactChecks": 1248,
-        "actualRequests": 3,
-        "integrationLog": "retained"
-      }
-    ]
-  },
-  "githubHostedCI": {
     "sourceCommit": "cdc35b545df6fb91b3150fcc039857dadaac250f",
     "runId": 44673638666,
     "url": "https://github.com/jintilm/GrantDiff/actions/runs/44673638666",
@@ -418,7 +336,8 @@
       ]
     }
   },
-  "packagesVerificationRelease": "1.0.0-rc.1",
+  "githubHostedCI": "pending for 1.1.0-preview.1",
+  "packagesVerificationRelease": "1.1.0-preview.1",
   "wildcardBenchmarks": [
     {
       "arch": "amd64",
@@ -518,13 +437,13 @@
     "documentationLinks": "passed"
   },
   "packages": {
-    "release": "1.0.0-rc.1",
+    "release": "1.1.0-preview.1",
     "automatedVerifier": "scripts/packagecheck/verify.py",
     "nativePlatforms": [
       "windows/amd64",
       "linux/amd64"
     ],
-    "outputFingerprints": 29,
+    "outputFingerprints": 34,
     "platformParity": "passed",
     "checks": [
       "archive checksums",
@@ -541,7 +460,8 @@
       "BOM and CRLF",
       "read-only input",
       "documentation links",
-      "license notices"
+      "license notices",
+      "offline HTML generation"
     ]
   },
   "integrationCaptureRecovery": {
@@ -575,5 +495,42 @@
     "tag": "v1.0.0-rc.1",
     "windowsShortPaths": "reproduced, fixed and verified in native CI",
     "packageFailureLogs": "retained on all outcomes"
+  },
+  "kubernetesVerificationRelease": "1.0.0-rc.1",
+  "viewer": {
+    "format": "offline HTML",
+    "reportSchema": "1.0",
+    "maxReportBytes": 134217728,
+    "pageSize": 40,
+    "evidenceBatchSize": 20,
+    "localWindowsBrowser": {
+      "browser": "Chromium",
+      "browserVersion": "156.0.8078.4",
+      "result": "passed",
+      "offline": true,
+      "bulkRanges": 5000,
+      "bulkLoadAndFilterMilliseconds": 1141,
+      "checks": [
+        "embedded and selected reports",
+        "identity/type/risk/search filters",
+        "namespace complements",
+        "URL prefix exclusions",
+        "before/after evidence",
+        "path expansion",
+        "source locations",
+        "incomplete and empty reports",
+        "invalid schema rejection",
+        "literal HTML-sensitive data",
+        "language switching",
+        "pagination",
+        "keyboard and mobile layout",
+        "5000-range report",
+        "no network requests or console errors"
+      ]
+    },
+    "localLinuxUnitTests": "passed",
+    "hostedBrowserChecks": "pending",
+    "inputEscapingAndCSP": "passed",
+    "cliInputOutputChecks": "passed"
   }
 }

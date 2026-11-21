@@ -1,8 +1,16 @@
 # Validation record
 
-The release candidate is `1.0.0-rc.1`. Local tests were run on 2026-11-20. Results describe the listed environments and cases. Machine-readable evidence records authorization, generated-policy, compaction, CRD, snapshot and package checks independently. Candidate support and compatibility are defined in `compatibility.md`.
+The viewer preview is `1.1.0-preview.1`. Local viewer tests were run on 2026-11-21. Results describe the listed environments and cases. Machine-readable evidence records authorization, generated-policy, compaction, CRD, snapshot, package and browser checks independently. Candidate support and compatibility are defined in `compatibility.md`.
 
-GitHub Actions verified candidate source commit `cdc35b545df6fb91b3150fcc039857dadaac250f` successfully. All nine jobs passed, covering Windows/Ubuntu unit tests, three Kubernetes versions, archive building, two native extracted-package checks and output parity. Downloaded artifacts confirmed the per-version counts below and 29 matching Windows/Linux output fingerprints. Run and job identifiers are recorded in `verification-results.json`. [Candidate verification](https://github.com/jintilm/GrantDiff/actions/runs/44673638666)
+The preceding candidate passed its nine-job workflow at commit `cdc35b545df6fb91b3150fcc039857dadaac250f`, including 29 matching Windows/Linux output fingerprints. Viewer validation adds offline browser interactions and five HTML fingerprints. The preview's hosted run will be recorded after its source is pushed. [Previous candidate verification](https://github.com/jintilm/GrantDiff/actions/runs/44673638666)
+
+## Offline viewer checks
+
+The viewer command embeds the interface and report schema in a single HTML file. Unit tests check literal report data containing script terminators, inline content hashes, normalized newlines, byte-order marks, input limits, input/output separation and error preservation of an existing output. CLI regression checks exercise a complete viewer document containing an incomplete diff result.
+
+The Playwright verifier runs the extracted executable and opens its generated files with networking disabled. It covers identity, change type, risk and text filters, namespace complements, empty namespace requests, URL prefix exclusions, before/after evidence, source locations, path disclosure, empty/incomplete states, invalid schema fields, literal HTML-sensitive strings, language switching, pagination and keyboard selection. Desktop and 390-pixel layouts are captured for inspection. A synthetic 5,000-range report checks bounded list rendering and filtering.
+
+The initial local Windows check used Chromium 156.0.8078.4 and completed its 5,000-range load-and-filter exercise in approximately 1.1 seconds. This is one observed browser run including file selection and test synchronization. It describes the sampled report and machine. Browser input is capped at 128 MiB, and larger or more complex reports depend on available memory. Generated HTML uses the report's completeness and authorization findings as supplied.
 
 ## Environments
 
@@ -19,6 +27,8 @@ Dependencies were downloaded through an accessible Go proxy after the default en
 A hosted Kubernetes 1.37 run detected changing RBAC or identity objects during the after-state capture for generated seed `101`. The consistency check rejected that capture. The integration harness now retries that specific consistency error for at most five captures, with 100 ms between attempts and the scenario context as a deadline. Regressions verify recovery after one changing capture, failure after persistent drift, immediate API-error propagation and cancellation. CI retains its full integration log. [Observed capture failure](https://github.com/jintilm/GrantDiff/actions/runs/44665243675/job/136052832588)
 
 ## Kubernetes authorization checks
+
+The local matrix below was run for the preceding release candidate on 2026-11-20. The viewer consumes those schema 1.0 results. Its hosted verification runs the matrix again alongside the browser and package jobs.
 
 | Kubernetes | Node image SHA-256 | Authorization comparisons | Generated diff checks | Compact coverage checks | Actual HTTP requests |
 | --- | --- | --- | --- | --- | --- |
@@ -107,6 +117,6 @@ The candidate records these limits in its support contract. Feedback from outsid
 
 The candidate milestone covers the support contract, snapshot integrity, permission narrowing in a second pinned controller and automated native archive verification. Existing scope, typed-list, CRD, aggregation, wildcard and incomplete-result regressions run with the candidate. Workflows are checked with actionlint v1.7.7, and the Python verifier passes Ruff checks.
 
-Machine-readable local results are stored in `verification-results.json`. Linux unit tests executed with networking disabled and dependencies mounted from the local module cache. The package verifier runs from the extracted archive in a Unicode path containing spaces. It checks four scenarios in default and compact text, Markdown and JSON, golden reports, Schema 1.0, catalog generation, positive/negative/unknown queries, exit codes 0 through 4, read-only input, BOM/CRLF, checksums, documentation and notices. Windows and Linux produce 29 identical output fingerprints.
+Machine-readable local results are stored in `verification-results.json`. Linux unit tests execute with networking disabled and dependencies mounted from the local module cache. The package verifier runs from the extracted archive in a Unicode path containing spaces. It checks four scenarios in default and compact text, Markdown and JSON, golden reports, Schema 1.0, catalog generation, positive/negative/unknown queries, exit codes 0 through 4, read-only input, BOM/CRLF, checksums, documentation and notices. The viewer extends its 29 output fingerprints with four embedded HTML reports and the empty HTML viewer. The packaged `viewer.html` must equal the executable-generated empty page.
 
 Every branch verification builds one pair of archives and runs them on native Windows and Ubuntu runners before comparing fingerprints. Version tags run that same complete workflow, then publish the tested archives and checksums. Draft publication allows interrupted uploads to be retried before the release becomes visible. A candidate's public CI and downloadable artifacts provide reproducible evidence for review.

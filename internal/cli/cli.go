@@ -18,9 +18,10 @@ import (
 	"github.com/jintilm/GrantDiff/internal/input"
 	"github.com/jintilm/GrantDiff/internal/model"
 	"github.com/jintilm/GrantDiff/internal/report"
+	"github.com/jintilm/GrantDiff/internal/viewer"
 )
 
-var Version = "1.0.0-rc.1"
+var Version = "1.1.0-preview.1"
 
 type options struct {
 	before, after, repo, base, head, path, baseline, changes               string
@@ -35,14 +36,14 @@ type options struct {
 
 func Run(args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 || slices.Contains([]string{"help", "--help", "-h"}, args[0]) {
-		fmt.Fprintln(stdout, "grantdiff diff | query | catalog | snapshot | version\n\nReview Kubernetes RBAC changes with explicit authorization evidence.\nUse COMMAND --help for flags.")
+		fmt.Fprintln(stdout, "grantdiff diff | query | view | catalog | snapshot | version\n\nReview Kubernetes RBAC changes with explicit authorization evidence.\nUse COMMAND --help for flags.")
 		return 0
 	}
 	if args[0] == "version" || args[0] == "--version" {
 		fmt.Fprintln(stdout, Version)
 		return 0
 	}
-	if !slices.Contains([]string{"diff", "query", "catalog", "snapshot"}, args[0]) {
+	if !slices.Contains([]string{"diff", "query", "view", "catalog", "snapshot"}, args[0]) {
 		fmt.Fprintln(stderr, "unknown command:", args[0])
 		return 2
 	}
@@ -63,6 +64,9 @@ func Run(args []string, stdout, stderr io.Writer) int {
 	if args[0] == "catalog" {
 		return catalog(opts, stdout, stderr)
 	}
+	if args[0] == "view" {
+		return view(opts, stdout, stderr)
+	}
 	return compare(opts, stdout, stderr)
 }
 
@@ -74,6 +78,8 @@ func parse(command string, args []string, stderr io.Writer) (options, error) {
 	if command == "snapshot" {
 		flags.StringVar(&opts.context, "context", "", "explicit Kubernetes context")
 		flags.StringVar(&opts.kubeconfig, "kubeconfig", "", "trusted kubeconfig file")
+	} else if command == "view" {
+		flags.StringVar(&opts.input, "input", "", "optional schema 1.0 diff JSON report to embed")
 	} else if command == "catalog" {
 		flags.StringVar(&opts.input, "input", "", "CRD manifests to turn into a resource catalog")
 		flags.StringVar(&opts.catalog, "catalog", "", "optional base catalog to merge")
@@ -116,13 +122,45 @@ func parse(command string, args []string, stderr io.Writer) (options, error) {
 	if flags.NArg() != 0 {
 		return opts, fmt.Errorf("unexpected positional arguments")
 	}
-	if command != "snapshot" && command != "catalog" && !slices.Contains([]string{"text", "markdown", "json"}, opts.format) {
+	if command != "snapshot" && command != "catalog" && command != "view" && !slices.Contains([]string{"text", "markdown", "json"}, opts.format) {
 		return opts, fmt.Errorf("invalid format %q", opts.format)
 	}
 	if opts.summaryOnly && opts.format == "json" {
 		return opts, fmt.Errorf("--summary supports text and markdown; JSON always includes full changes")
 	}
 	return opts, nil
+}
+
+func view(opts options, stdout, stderr io.Writer) int {
+	if !strings.EqualFold(filepath.Ext(opts.output), ".html") {
+		fmt.Fprintln(stderr, "view requires --output with an .html filename")
+		return 2
+	}
+	var data []byte
+	var err error
+	if opts.input != "" {
+		inputInfo, inputErr := os.Stat(opts.input)
+		outputInfo, outputErr := os.Stat(opts.output)
+		if inputErr == nil && outputErr == nil && os.SameFile(inputInfo, outputInfo) {
+			fmt.Fprintln(stderr, "viewer output must be separate from the input report")
+			return 2
+		}
+		data, err = viewer.Load(opts.input)
+		if err != nil {
+			fmt.Fprintln(stderr, err)
+			return 2
+		}
+	}
+	page, err := viewer.Render(data)
+	if err == nil {
+		err = report.Write(opts.output, page, stdout)
+	}
+	if err != nil {
+		fmt.Fprintln(stderr, err)
+		return 2
+	}
+	fmt.Fprintf(stdout, "Open %s in a browser to review the report.\n", opts.output)
+	return 0
 }
 
 func compare(opts options, stdout, stderr io.Writer) int {
