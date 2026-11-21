@@ -336,7 +336,135 @@
       ]
     }
   },
-  "githubHostedCI": "pending for 1.1.0-preview.1",
+  "githubHostedCI": {
+    "sourceCommit": "332dbaf9bd60e6cf428e84ff2faf2b6b1e44711b",
+    "runId": 44892217511,
+    "url": "https://github.com/jintilm/GrantDiff/actions/runs/44892217511",
+    "conclusion": "success",
+    "release": "1.1.0-preview.1",
+    "jobs": [
+      {
+        "id": 136810311284,
+        "name": "packages",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44892217511/job/136810311284"
+      },
+      {
+        "id": 136810311366,
+        "name": "kubernetes (v1.37.0, kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4...",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44892217511/job/136810311366"
+      },
+      {
+        "id": 136810311376,
+        "name": "kubernetes (v1.36.4, kindest/node:v1.36.4@sha256:099e049362a1526b2db71494e1947aae99bd16290d7c895f...",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44892217511/job/136810311376"
+      },
+      {
+        "id": 136810311408,
+        "name": "unit (windows-latest)",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44892217511/job/136810311408"
+      },
+      {
+        "id": 136810311451,
+        "name": "unit (ubuntu-24.04)",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44892217511/job/136810311451"
+      },
+      {
+        "id": 136810311480,
+        "name": "kubernetes (v1.35.8, kindest/node:v1.35.8@sha256:07b2536e30b803ed61d1677a79df6115f798ce64c80f9e22...",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44892217511/job/136810311480"
+      },
+      {
+        "id": 136810892142,
+        "name": "package-test (ubuntu-24.04, linux)",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44892217511/job/136810892142"
+      },
+      {
+        "id": 136810892171,
+        "name": "package-test (windows-latest, windows)",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44892217511/job/136810892171"
+      },
+      {
+        "id": 136811905775,
+        "name": "package-parity",
+        "conclusion": "success",
+        "url": "https://github.com/jintilm/GrantDiff/actions/runs/44892217511/job/136811905775"
+      }
+    ],
+    "artifacts": [
+      {
+        "name": "package-check-linux",
+        "id": 14701904934,
+        "sizeInBytes": 346600
+      },
+      {
+        "name": "package-check-windows",
+        "id": 14702861029,
+        "sizeInBytes": 220271
+      },
+      {
+        "name": "release-packages",
+        "id": 14702995021,
+        "sizeInBytes": 19442758
+      },
+      {
+        "name": "verification-v1.35.8",
+        "id": 14702098945,
+        "sizeInBytes": 2185
+      },
+      {
+        "name": "verification-v1.36.4",
+        "id": 14703050307,
+        "sizeInBytes": 2228
+      },
+      {
+        "name": "verification-v1.37.0",
+        "id": 14701954277,
+        "sizeInBytes": 2232
+      }
+    ],
+    "verifiedResults": [
+      {
+        "kubernetesVersion": "v1.35.8",
+        "authorizationComparisons": 3763,
+        "diffChecks": 1248,
+        "compactChecks": 1248,
+        "actualRequests": 3,
+        "snapshotRoundTrips": 1
+      },
+      {
+        "kubernetesVersion": "v1.36.4",
+        "authorizationComparisons": 3763,
+        "diffChecks": 1248,
+        "compactChecks": 1248,
+        "actualRequests": 3,
+        "snapshotRoundTrips": 1
+      },
+      {
+        "kubernetesVersion": "v1.37.0",
+        "authorizationComparisons": 3763,
+        "diffChecks": 1248,
+        "compactChecks": 1248,
+        "actualRequests": 3,
+        "snapshotRoundTrips": 1
+      }
+    ],
+    "packageParity": {
+      "outputFingerprints": 34,
+      "result": "passed",
+      "platforms": [
+        "windows/amd64",
+        "linux/amd64"
+      ]
+    }
+  },
   "packagesVerificationRelease": "1.1.0-preview.1",
   "wildcardBenchmarks": [
     {
@@ -529,7 +657,58 @@
       ]
     },
     "localLinuxUnitTests": "passed",
-    "hostedBrowserChecks": "pending",
+    "hostedBrowserChecks": {
+      "windows": {
+        "browser": "Chromium",
+        "browserVersion": "156.0.8078.4",
+        "result": "passed",
+        "offline": true,
+        "bulkRanges": 5000,
+        "bulkLoadAndFilterMilliseconds": 1312,
+        "checks": [
+          "embedded and selected reports",
+          "identity/type/risk/search filters",
+          "namespace complements",
+          "URL prefix exclusions",
+          "before/after evidence",
+          "path expansion",
+          "source locations",
+          "incomplete and empty reports",
+          "invalid schema rejection",
+          "literal HTML-sensitive data",
+          "language switching",
+          "pagination",
+          "keyboard and mobile layout",
+          "5000-range report",
+          "no network requests or console errors"
+        ]
+      },
+      "linux": {
+        "browser": "Chromium",
+        "browserVersion": "156.0.8078.4",
+        "result": "passed",
+        "offline": true,
+        "bulkRanges": 5000,
+        "bulkLoadAndFilterMilliseconds": 1080,
+        "checks": [
+          "embedded and selected reports",
+          "identity/type/risk/search filters",
+          "namespace complements",
+          "URL prefix exclusions",
+          "before/after evidence",
+          "path expansion",
+          "source locations",
+          "incomplete and empty reports",
+          "invalid schema rejection",
+          "literal HTML-sensitive data",
+          "language switching",
+          "pagination",
+          "keyboard and mobile layout",
+          "5000-range report",
+          "no network requests or console errors"
+        ]
+      }
+    },
     "inputEscapingAndCSP": "passed",
     "cliInputOutputChecks": "passed"
   }

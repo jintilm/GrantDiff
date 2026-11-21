@@ -2,7 +2,7 @@
 
 The viewer preview is `1.1.0-preview.1`. Local viewer tests were run on 2026-11-21. Results describe the listed environments and cases. Machine-readable evidence records authorization, generated-policy, compaction, CRD, snapshot, package and browser checks independently. Candidate support and compatibility are defined in `compatibility.md`.
 
-The preceding candidate passed its nine-job workflow at commit `cdc35b545df6fb91b3150fcc039857dadaac250f`, including 29 matching Windows/Linux output fingerprints. Viewer validation adds offline browser interactions and five HTML fingerprints. The preview's hosted run will be recorded after its source is pushed. [Previous candidate verification](https://github.com/jintilm/GrantDiff/actions/runs/44673638666)
+GitHub Actions verified viewer source commit `332dbaf9bd60e6cf428e84ff2faf2b6b1e44711b` successfully. All nine jobs passed, including offline browser interactions on extracted Windows/Linux packages, three Kubernetes versions and output parity. Downloaded artifacts confirmed 34 matching output fingerprints and the browser checks below. [Viewer verification](https://github.com/jintilm/GrantDiff/actions/runs/44892217511)
 
 ## Offline viewer checks
 
@@ -11,6 +11,8 @@ The viewer command embeds the interface and report schema in a single HTML file.
 The Playwright verifier runs the extracted executable and opens its generated files with networking disabled. It covers identity, change type, risk and text filters, namespace complements, empty namespace requests, URL prefix exclusions, before/after evidence, source locations, path disclosure, empty/incomplete states, invalid schema fields, literal HTML-sensitive strings, language switching, pagination and keyboard selection. Desktop and 390-pixel layouts are captured for inspection. A synthetic 5,000-range report checks bounded list rendering and filtering.
 
 The initial local Windows check used Chromium 156.0.8078.4 and completed its 5,000-range load-and-filter exercise in approximately 1.1 seconds. This is one observed browser run including file selection and test synchronization. It describes the sampled report and machine. Browser input is capped at 128 MiB, and larger or more complex reports depend on available memory. Generated HTML uses the report's completeness and authorization findings as supplied.
+
+The hosted Windows and Ubuntu package jobs both passed with Chromium 156.0.8078.4. The 5,000-range exercise took 1,312 ms and 1,080 ms respectively in those runs. Both reported zero network requests and no browser console errors during offline interaction tests. Desktop and narrow-screen screenshots accompany the package-check artifacts.
 
 ## Environments
 
@@ -28,7 +30,7 @@ A hosted Kubernetes 1.37 run detected changing RBAC or identity objects during t
 
 ## Kubernetes authorization checks
 
-The local matrix below was run for the preceding release candidate on 2026-11-20. The viewer consumes those schema 1.0 results. Its hosted verification runs the matrix again alongside the browser and package jobs.
+The local matrix below was run for the preceding release candidate on 2026-11-20. The viewer's hosted verification reran the matrix successfully on 2026-11-21 and confirmed the same per-version counts, including one snapshot round trip per version. These hosted results are recorded separately in `verification-results.json`.
 
 | Kubernetes | Node image SHA-256 | Authorization comparisons | Generated diff checks | Compact coverage checks | Actual HTTP requests |
 | --- | --- | --- | --- | --- | --- |
